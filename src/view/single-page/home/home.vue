@@ -33,6 +33,7 @@ import InforCard from '_c/info-card'
 import CountTo from '_c/count-to'
 import { ChartPie, ChartBar } from '_c/charts'
 import Example from './example.vue'
+
 export default {
   name: 'home',
   components: {
@@ -41,6 +42,9 @@ export default {
     ChartPie,
     ChartBar,
     Example
+  },
+  methods: {
+    //
   },
   data () {
     return {
@@ -72,6 +76,11 @@ export default {
   },
   mounted () {
     //
+  },
+  created () {
+    setInterval(() => {
+      this.$store.dispatch('sendQtText', { text: Math.random() })
+    }, 5000)
   }
 }
 </script>

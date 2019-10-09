@@ -66,7 +66,8 @@ export default {
       collapsed: false,
       minLogo,
       maxLogo,
-      isFullscreen: false
+      isFullscreen: false,
+      qtSocket: null
     }
   },
   computed: {
@@ -147,6 +148,29 @@ export default {
     },
     handleClick (item) {
       this.turnToPage(item)
+    },
+    openQtChannel () {
+      window.dialog = 'aaaaaa'
+      let baseUrl = config.qtChannelWebSocketAddr
+      console.info('Connecting to WebSocket server at ' + baseUrl)
+      this.qtSocket = new WebSocket(baseUrl)
+      this.qtSocket.onclose = () => {
+        console.error('web channel closed')
+        this.qtSocket = null
+      }
+      this.qtSocket.onerror = (error) => {
+        console.error('web channel error: ' + error)
+        this.qtSocket = null
+      }
+      this.qtSocket.onopen = () => {
+        console.info('WebSocket connected, setting up QWebChannel.')
+        qwebchannel.QWebChannel(this.qtSocket, (channel) => {
+          window.dialog = channel.objects.dialog
+          dialog.sendText.connect((message) => {
+            console.error('Received message: ' + message)
+          })
+        })
+      }
     }
   },
   watch: {
@@ -182,6 +206,17 @@ export default {
     }
     // 获取未读消息条数
     this.getUnreadMessageCount()
+  },
+  created () {
+    // 监听 qt
+    setTimeout(() => {
+      this.$store.dispatch('onQtMessage', message => {
+        this.$Message.error(message)
+      })
+    }, 5000)
+  },
+  destroyed () {
+    console.info('------ main destroyed ------')
   }
 }
 </script>

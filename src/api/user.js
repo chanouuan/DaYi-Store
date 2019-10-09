@@ -1,12 +1,13 @@
 import axios from '@/libs/api.request'
+import md5 from 'js-md5'
 
 export const login = ({ userName, password }) => {
   const data = {
-    userName,
-    password
+    username: userName,
+    password: md5(password)
   }
   return axios.request({
-    url: 'login',
+    url: 'serverClinic/login',
     data,
     method: 'post'
   })
@@ -14,11 +15,11 @@ export const login = ({ userName, password }) => {
 
 export const getUserInfo = (token) => {
   return axios.request({
-    url: 'get_info',
-    params: {
-      token
+    url: 'serverClinic/getUserProfile',
+    data: {
+      token: token
     },
-    method: 'get'
+    method: 'post'
   })
 }
 

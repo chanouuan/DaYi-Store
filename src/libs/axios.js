@@ -1,5 +1,7 @@
 import axios from 'axios'
+import qs from 'qs'
 import store from '@/store'
+import { hasKey } from '@/libs/tools'
 // import { Spin } from 'iview'
 const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
@@ -21,7 +23,7 @@ class HttpRequest {
     const config = {
       baseURL: this.baseUrl,
       headers: {
-        //
+        // 'Content-Type': 'application/json'
       }
     }
     return config
@@ -67,8 +69,32 @@ class HttpRequest {
   request (options) {
     const instance = axios.create()
     options = Object.assign(this.getInsideConfig(), options)
+    // post 参数要格式化，否则服务端接收不到
+    if (hasKey(options, 'data')) {
+      options.data = qs.stringify(options.data)
+    }
     this.interceptors(instance, options.url)
-    return instance(options)
+    return new Promise((resolve, reject) => {
+      instance(options).then(res => {
+        const data = res.data
+        if (data && typeof data === 'object' && hasKey(data, 'errorcode')) {
+          if (data.errorcode !== 0) {
+            // 用户未登录
+            if (data.errorcode === 3010) {
+              store.commit('setToken', '')
+              store.commit('setAccess', [])
+            }
+            reject(data.message)
+          } else {
+            resolve(data.result)
+          }
+        } else {
+          resolve(data)
+        }
+      }).catch(err => {
+        reject(err)
+      })
+    })
   }
 }
 export default HttpRequest

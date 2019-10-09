@@ -19,6 +19,7 @@ export default {
     token: getToken(),
     access: '',
     hasGetInfo: false,
+    storeInfo: {}, // 门店信息
     unreadCount: 0,
     messageUnreadList: [],
     messageReadedList: [],
@@ -44,6 +45,9 @@ export default {
     },
     setHasGetInfo (state, status) {
       state.hasGetInfo = status
+    },
+    setStoreInfo (state, storeInfo) {
+      state.storeInfo = storeInfo
     },
     setMessageCount (state, count) {
       state.unreadCount = count
@@ -81,8 +85,11 @@ export default {
           userName,
           password
         }).then(res => {
-          const data = res.data
-          commit('setToken', data.token)
+          commit('setAvator', res.avatar)
+          commit('setUserId', res.user_id)
+          commit('setUserName', res.nickname)
+          commit('setAccess', res.permission)
+          commit('setToken', res.token)
           resolve()
         }).catch(err => {
           reject(err)
@@ -108,21 +115,17 @@ export default {
     // 获取用户相关信息
     getUserInfo ({ state, commit }) {
       return new Promise((resolve, reject) => {
-        try {
-          getUserInfo(state.token).then(res => {
-            const data = res.data
-            commit('setAvator', data.avator)
-            commit('setUserName', data.name)
-            commit('setUserId', data.user_id)
-            commit('setAccess', data.access)
-            commit('setHasGetInfo', true)
-            resolve(data)
-          }).catch(err => {
-            reject(err)
-          })
-        } catch (error) {
-          reject(error)
-        }
+        getUserInfo(state.token).then(res => {
+          commit('setAvator', res.avatar)
+          commit('setUserName', res.nickname)
+          commit('setUserId', res.user_id)
+          commit('setAccess', res.permission)
+          commit('setHasGetInfo', true)
+          commit('setStoreInfo', res.storeInfo)
+          resolve(res)
+        }).catch(err => {
+          reject(err)
+        })
       })
     },
     // 此方法用来获取未读消息条数，接口只返回数值，不返回消息列表
