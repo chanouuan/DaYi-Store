@@ -63,11 +63,10 @@ export default {
   },
   data () {
     return {
-      collapsed: false,
+      collapsed: true,
       minLogo,
       maxLogo,
-      isFullscreen: false,
-      qtSocket: null
+      isFullscreen: false
     }
   },
   computed: {
@@ -110,8 +109,7 @@ export default {
       'closeTag'
     ]),
     ...mapActions([
-      'handleLogin',
-      'getUnreadMessageCount'
+      'handleLogin'
     ]),
     turnToPage (route) {
       let { name, params, query } = {}
@@ -148,29 +146,6 @@ export default {
     },
     handleClick (item) {
       this.turnToPage(item)
-    },
-    openQtChannel () {
-      window.dialog = 'aaaaaa'
-      let baseUrl = config.qtChannelWebSocketAddr
-      console.info('Connecting to WebSocket server at ' + baseUrl)
-      this.qtSocket = new WebSocket(baseUrl)
-      this.qtSocket.onclose = () => {
-        console.error('web channel closed')
-        this.qtSocket = null
-      }
-      this.qtSocket.onerror = (error) => {
-        console.error('web channel error: ' + error)
-        this.qtSocket = null
-      }
-      this.qtSocket.onopen = () => {
-        console.info('WebSocket connected, setting up QWebChannel.')
-        qwebchannel.QWebChannel(this.qtSocket, (channel) => {
-          window.dialog = channel.objects.dialog
-          dialog.sendText.connect((message) => {
-            console.error('Received message: ' + message)
-          })
-        })
-      }
     }
   },
   watch: {
@@ -204,8 +179,6 @@ export default {
         name: this.$config.homeName
       })
     }
-    // 获取未读消息条数
-    this.getUnreadMessageCount()
   },
   created () {
     // 监听 qt
@@ -213,10 +186,14 @@ export default {
       this.$store.dispatch('onQtMessage', message => {
         this.$Message.error(message)
       })
+      let text = {
+        code: 100,
+        data: this.$store.state.user.storeInfo
+      }
+      text = JSON.stringify(text)
+      console.log(text)
+      this.$store.dispatch('sendQtText', { text })
     }, 5000)
-  },
-  destroyed () {
-    console.info('------ main destroyed ------')
   }
 }
 </script>

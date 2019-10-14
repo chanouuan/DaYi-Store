@@ -15,7 +15,7 @@
       </Input>
     </FormItem>
     <FormItem>
-      <Button @click="handleSubmit" type="primary" long>登录</Button>
+      <Button :loading="loading" @click="handleSubmit" type="primary" long>登录</Button>
     </FormItem>
   </Form>
 </template>
@@ -23,6 +23,10 @@
 export default {
   name: 'LoginForm',
   props: {
+    loading: {
+      type: Boolean,
+      default: false
+    },
     userNameRules: {
       type: Array,
       default: () => {

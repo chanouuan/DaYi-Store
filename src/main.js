@@ -50,7 +50,7 @@ new Vue({
   i18n,
   store,
   render: h => h(App),
-  created () {
+  mounted () {
     // 创建 Qt Socket通信
     store.dispatch('createQtChannel')
   }

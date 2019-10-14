@@ -6,8 +6,7 @@ import {
   getContentByMsgId,
   hasRead,
   removeReaded,
-  restoreTrash,
-  getUnreadCount
+  restoreTrash
 } from '@/api/user'
 import { setToken, getToken } from '@/libs/util'
 
@@ -17,6 +16,7 @@ export default {
     userId: '',
     avatorImgPath: '',
     token: getToken(),
+    role: '',
     access: '',
     hasGetInfo: false,
     storeInfo: {}, // 门店信息
@@ -35,6 +35,9 @@ export default {
     },
     setUserName (state, name) {
       state.userName = name
+    },
+    setRole (state, role) {
+      state.role = role
     },
     setAccess (state, access) {
       state.access = access
@@ -88,6 +91,7 @@ export default {
           commit('setAvator', res.avatar)
           commit('setUserId', res.user_id)
           commit('setUserName', res.nickname)
+          commit('setRole', res.role)
           commit('setAccess', res.permission)
           commit('setToken', res.token)
           resolve()
@@ -106,10 +110,6 @@ export default {
         }).catch(err => {
           reject(err)
         })
-        // 如果你的退出登录无需请求接口，则可以直接使用下面三行代码而无需使用logout调用接口
-        // commit('setToken', '')
-        // commit('setAccess', [])
-        // resolve()
       })
     },
     // 获取用户相关信息
@@ -118,21 +118,16 @@ export default {
         getUserInfo(state.token).then(res => {
           commit('setAvator', res.avatar)
           commit('setUserName', res.nickname)
-          commit('setUserId', res.user_id)
+          commit('setUserId', res.id)
+          commit('setRole', res.role)
           commit('setAccess', res.permission)
+          commit('setMessageCount', res.unread_count)
           commit('setHasGetInfo', true)
-          commit('setStoreInfo', res.storeInfo)
+          commit('setStoreInfo', res.store_info)
           resolve(res)
         }).catch(err => {
           reject(err)
         })
-      })
-    },
-    // 此方法用来获取未读消息条数，接口只返回数值，不返回消息列表
-    getUnreadMessageCount ({ state, commit }) {
-      getUnreadCount().then(res => {
-        const { data } = res
-        commit('setMessageCount', data)
       })
     },
     // 获取消息列表，其中包含未读、已读、回收站三个列表

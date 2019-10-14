@@ -54,17 +54,18 @@ export default [
     name: 'diagnose',
     component: Main,
     meta: {
-      //
+      hideInBread: true,
+      notCache: true
     },
     children: [
       {
         path: 'diagnose_page',
         name: 'diagnose_page',
         meta: {
-          icon: 'md-add',
+          icon: 'md-person-add',
           title: '接诊'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/diagnose/diagnose.vue')
       }
     ]
   },
@@ -73,7 +74,8 @@ export default [
     name: 'buy_drug',
     component: Main,
     meta: {
-      //
+      hideInBread: true,
+      notCache: true
     },
     children: [
       {
@@ -92,7 +94,7 @@ export default [
     name: 'stock',
     component: Main,
     meta: {
-      icon: 'md-filing',
+      icon: 'ios-archive',
       title: '库房管理'
     },
     children: [
@@ -100,7 +102,7 @@ export default [
         path: 'stock_page',
         name: 'stock_page',
         meta: {
-          icon: 'ios-archive',
+          icon: 'md-filing',
           title: '库存管理'
         },
         component: () => import('@/view/join-page.vue')
@@ -139,7 +141,7 @@ export default [
         name: 'clinic_drug_page',
         meta: {
           icon: 'md-medkit',
-          title: '药品'
+          title: '添加药品'
         },
         component: () => import('@/view/join-page.vue')
       },

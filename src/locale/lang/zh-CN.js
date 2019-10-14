@@ -6,7 +6,7 @@ export default {
   stock_pull_page: '入库',
   stock_push_page: '出库',
   clinic: '诊所设置',
-  clinic_drug_page: '药品',
+  clinic_drug_page: '添加药品',
   clinic_treatment_page: '诊疗项目',
   clinic_employee_page: '员工管理',
   clinic_import_page: '数据导入',

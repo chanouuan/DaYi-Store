@@ -25,15 +25,11 @@ export const getUserInfo = (token) => {
 
 export const logout = (token) => {
   return axios.request({
-    url: 'logout',
+    url: 'serverClinic/logout',
+    data: {
+      token: token
+    },
     method: 'post'
-  })
-}
-
-export const getUnreadCount = () => {
-  return axios.request({
-    url: 'message/count',
-    method: 'get'
   })
 }
 

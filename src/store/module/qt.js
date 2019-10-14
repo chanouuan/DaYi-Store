@@ -52,7 +52,7 @@ export default {
             commit('setQtDialog', dialog)
             commit('setQtRunning', true)
             Notice.success({
-              title: '系统通信启动成功（' + parseFloat(((new Date()).getTime() - beginTime)).toFixed(2) + 's）',
+              title: '系统通信启动成功（' + parseFloat(((new Date()).getTime() - beginTime / 1000)).toFixed(2) + 's）',
               duration: 2
             })
           })

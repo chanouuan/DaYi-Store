@@ -78,9 +78,9 @@ export default {
     //
   },
   created () {
-    setInterval(() => {
-      this.$store.dispatch('sendQtText', { text: Math.random() })
-    }, 5000)
+    // setInterval(() => {
+    //   this.$store.dispatch('sendQtText', { text: Math.random() })
+    // }, 5000)
   }
 }
 </script>
