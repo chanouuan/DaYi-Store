@@ -4,11 +4,11 @@
       {{ storeInfo.name }}
     </p>
     <a href="#" slot="extra" @click.prevent="changeAdvanced">
-      <Icon type="ios-repeat" :class="rotateIcon"></Icon>
+      <Icon type="md-refresh" :class="rotateIcon"></Icon>
       {{ rotateModel }}
     </a>
     <div v-if="!advanced" style="text-align:center">
-      <Button @click="createCard" style="width: 150px; height: 150px;font-size: 80px" shape="circle" icon="md-checkmark"></Button>
+      <Button @click="createCard(1)" style="width: 150px; height: 150px;font-size: 80px" shape="circle" icon="md-checkmark"></Button>
     </div>
     <!-- 添加患者信息 -->
     <Form v-if="advanced" ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
@@ -20,10 +20,10 @@
         </Col>
         <Col span="6">
           <FormItem label="性别">
-              <RadioGroup v-model="formItem.patient_gender">
-                  <Radio label="1">男</Radio>
-                  <Radio label="2">女</Radio>
-              </RadioGroup>
+            <RadioGroup v-model="formItem.patient_gender">
+              <Radio label="1">男</Radio>
+              <Radio label="2">女</Radio>
+            </RadioGroup>
           </FormItem>
         </Col>
         <Col span="6">
@@ -33,14 +33,14 @@
               <Input type="number" :maxlength="3" v-model="formItem.patient_age_year">
                 <span slot="append">岁</span>
               </Input>
-          </FormItem>
+            </FormItem>
             </Col>
             <Col span="10">
             <FormItem label="" :label-width="5">
               <Input type="number" :maxlength="2" v-model="formItem.patient_age_month">
                 <span slot="append">月</span>
               </Input>
-          </FormItem>
+            </FormItem>
             </Col>
           </Row>
         </Col>
@@ -78,29 +78,54 @@
           </FormItem>
         </Col>
       </Row>
-      <Divider orientation="center" dashed>处方笺</Divider>
+      <Divider orientation="center" dashed><Icon type="ios-create-outline"/> 处方笺</Divider>
       <!-- 处方笺列表 -->
-      <Row type="flex" justify="start">
-        <Col offset="1" span="3" v-for="note in formItem.notes" :key="note.relation_id">
-          <Tag closable>{{ note.name }}</Tag>
-        </Col>
+      <template v-for="(note, index) in formItem.notes">
+      <Row class="note-row" :key="index" v-if="note.category==1">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.package_spec }}</Col>
+        <Col span="3">{{ note.single_amount+note.dosage_unit }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="3">{{ note.usage_name }}</Col>
+        <Col span="3">{{ note.frequency_name }}</Col>
+        <Col span="3">{{ note.drug_days }}天</Col>
+        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
       </Row>
-      <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ parseFloat(formItem.total_money).toFixed(2) }}</span></Divider>
+      <Row class="note-row" :key="index" v-else-if="note.category==2">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="15">{{ note.usage_name }}</Col>
+        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+      </Row>
+      <Row class="note-row" :key="index" v-else-if="note.category==3">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="3">￥{{ note.price }}</Col>
+        <Col span="12">{{ note.remark }}&nbsp;</Col>
+        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+      </Row>
+      </template>
+      <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
       <FormItem style="text-align: right">
-        <Button type="warning" icon="ios-print">打印</Button>
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard">保存并收费</Button>
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard">保存</Button>
+        <Button :loading="submit" @click="backTo">返回上一步</Button>
+        <Button type="warning" style="margin-left: 8px" icon="ios-print" :loading="submit" @click="createCard(3)">打印</Button>
+        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(2)">保存并收费</Button>
+        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(1)">保存</Button>
       </FormItem>
     </Form>
     <!-- 添加处方笺 -->
-    <note-form v-if="advanced" @on-note="addNote"></note-form>
+    <note-form ref="noteForm" v-if="advanced" @on-note="addNote"></note-form>
   </Card>
 </template>
 
 <script>
 import {
   getAllergyEnum,
-  getDoctorList
+  getDoctorList,
+  doctorCreateCard
 } from '@/api/server'
 import NoteForm from '_c/diagnose/note-form'
 import ElementAutoComplete from '_c/diagnose/element-auto-complete'
@@ -135,7 +160,6 @@ export default {
         note_side: 0,
         advice: '',
         voice: '',
-        total_money: 0,
         notes: []
       },
       ruleCardForm: {
@@ -154,38 +178,82 @@ export default {
     },
     rotateModel () {
       return this.advanced ? '快捷模式' : '高级模式'
+    },
+    totalMoney () {
+      // 计算总金额
+      let total = 0
+      this.formItem.notes.forEach(element => {
+        total += element.price
+      })
+      return parseFloat(total).toFixed(2)
     }
   },
   methods: {
+    backTo () {
+      // 返回上一步
+      this.$Modal.confirm({
+        title: '确认返回上一步吗？',
+        content: '<p>本次会诊记录将不再保存。</p>',
+        onOk: () => {
+          this.$emit('on-back')
+        }
+      })
+    },
     selectPatientName (row) {
       // 患者信息
       this.formItem.patient_id = row.id
       this.formItem.patient_name = row.name
       this.formItem.patient_gender = row.gender + ''
       this.formItem.patient_tel = row.telephone
-      this.formItem.patient_age_year = row.age_year
-      this.formItem.patient_age_month = row.age_month
+      this.formItem.patient_age_year = ~~row.age_year
+      this.formItem.patient_age_month = ~~row.age_month
     },
-    createCard () {
+    createCard (type) {
       // 创建订单
       if (this.submit) return
       this.submit = true
+      let data = {
+        advanced: ~~this.advanced
+      }
       // 高级模式表单验证
       if (this.advanced) {
+        // 处方笺必填
+        if (!this.formItem.notes.length) {
+          this.submit = false
+          return this.$Message.error('请先添加药品')
+        }
         this.$refs['cardForm'].validate((valid) => {
-          if (valid) {
-            this.$Message.success('Success!')
-          } else {
-            this.$Message.error('Fail!')
+          if (!valid) {
+            this.submit = false
+            return
           }
+          data = Object.assign(data, this.formItem)
+          data.patient_age = data.patient_age_year + data.patient_age_month / 100
+          data.patient_allergies = data.patient_allergies.join(';')
+          data.notes = JSON.stringify(data.notes)
         })
       }
+      // 生成订单
+      doctorCreateCard(data).then(res => {
+        this.endVoice(res.order_id, res.print_code)
+        this.$emit('on-success', res)
+      }).catch(err => {
+        this.submit = false
+        this.$Modal.error({
+          title: '提示',
+          content: err
+        })
+      })
+    },
+    endVoice (order_id, print_code) {
       // 结束录音
       let text = {
         code: 101,
         data: {
           code: 2,
-          user_id: this.$store.state.user.userId
+          user_id: this.$store.state.user.userId,
+          order_id: order_id,
+          print_code: print_code
         }
       }
       text = JSON.stringify(text)
@@ -195,8 +263,16 @@ export default {
     addNote (note) {
       // 添加处方
       if (note.relation_id) {
+        // 先计算金额
+        note.price *= note.total_amount
         this.formItem.notes.push(note)
       }
+    },
+    noteRemove (index) {
+      // 删除处方
+      let note = this.formItem.notes[index]
+      this.formItem.notes.splice(index, 1)
+      this.$refs.noteForm.note[note.category].count--
     },
     changeAdvanced () {
       // 切换模式
@@ -235,11 +311,14 @@ export default {
 
 <style scoped>
 .menu-icon{
-  font-weight: bold;
   font-size: 16px;
   transition: all .3s;
 }
 .rotate-icon{
   transform: rotate(180deg);
+}
+.note-row{
+  height: 36px;
+  line-height: 36px;
 }
 </style>

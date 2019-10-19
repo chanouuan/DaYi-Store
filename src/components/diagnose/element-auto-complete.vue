@@ -23,7 +23,9 @@
 
 <script>
 import {
-  searchPatient
+  searchPatient,
+  searchDrug,
+  searchTreatmentSheet
 } from '@/api/server'
 export default {
   name: 'element-auto-complete',
@@ -56,6 +58,9 @@ export default {
     }
   },
   watch: {
+    parent_value (val) {
+      this.inputValue = val
+    },
     inputValue (val) {
       this.$emit('child-change', val) // 通知父组件值改变
     }
@@ -91,6 +96,15 @@ export default {
     searched (value) {
       if (this._apiname === 'searchPatient') {
         return searchPatient(value)
+      }
+      if (this._apiname === 'searchWestDrug') {
+        return searchDrug(this.$store.state.user.storeInfo.id, 1, value)
+      }
+      if (this._apiname === 'searchChineseDrug') {
+        return searchDrug(this.$store.state.user.storeInfo.id, 3, value)
+      }
+      if (this._apiname === 'searchTreatmentSheet') {
+        return searchTreatmentSheet(this.$store.state.user.storeInfo.id, value)
       }
       return new Promise(function (resolve, reject) {
         let columns = [
