@@ -28,7 +28,7 @@
 
 <script>
 import {
-  getDoctorOrderList
+  getTodayOrderList
 } from '@/api/server'
 import CreateCard from '_c/diagnose/create-card'
 import AdviceForm from '_c/diagnose/advice-form'
@@ -98,7 +98,6 @@ export default {
         }
       }
       text = JSON.stringify(text)
-      console.log(text)
       this.$store.dispatch('sendQtText', { text })
     },
     success (data) {
@@ -118,7 +117,7 @@ export default {
       if (this.todayRecordLoading) return
       this.todayRecordLoading = true
       if (!data.page) this.current = 1
-      getDoctorOrderList(data).then(res => {
+      getTodayOrderList(data).then(res => {
         this.todayRecordLoading = false
         this.totalCount = res.total_count
         this.pageSize = res.page_size
@@ -129,6 +128,7 @@ export default {
       })
     },
     changePage (page) {
+      // 会诊记录换页
       let start_time = this.currentPage.getFullYear() + '-' + (this.currentPage.getMonth() + 1) + '-' + this.currentPage.getDate()
       this.loadDoctorOrderList({ page, start_time })
     },

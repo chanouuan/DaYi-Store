@@ -50,6 +50,26 @@ export default [
     ]
   },
   {
+    path: '/checkout',
+    name: 'checkout',
+    component: Main,
+    meta: {
+      hideInBread: true,
+      notCache: true
+    },
+    children: [
+      {
+        path: 'checkout_page',
+        name: 'checkout_page',
+        meta: {
+          icon: 'logo-yen',
+          title: '收银台'
+        },
+        component: () => import('@/view/checkout/checkout.vue')
+      }
+    ]
+  },
+  {
     path: '/diagnose',
     name: 'diagnose',
     component: Main,
@@ -62,7 +82,7 @@ export default [
         path: 'diagnose_page',
         name: 'diagnose_page',
         meta: {
-          icon: 'md-person-add',
+          icon: 'md-person',
           title: '接诊'
         },
         component: () => import('@/view/diagnose/diagnose.vue')

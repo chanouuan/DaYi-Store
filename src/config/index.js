@@ -12,7 +12,7 @@ export default {
    *              如果不使用，则需要在路由中给需要在菜单中展示的路由设置meta: {title: 'xxx'}
    *              用来在菜单中显示文字
    */
-  useI18n: true,
+  useI18n: false,
   /**
    * @description api请求基础路径
    */
@@ -33,7 +33,7 @@ export default {
    */
   plugin: {
     'error-store': {
-      showInHeader: true, // 设为false后不会在顶部显示错误日志徽标
+      showInHeader: false, // 设为false后不会在顶部显示错误日志徽标
       developmentOff: true // 设为true后在开发环境不会收集错误信息，方便开发中排查错误
     }
   }

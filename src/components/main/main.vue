@@ -181,8 +181,8 @@ export default {
     }
   },
   created () {
-    // 监听 qt
     setTimeout(() => {
+      // 监听 qt
       this.$store.dispatch('onQtMessage', message => {
         this.$Message.error(message)
       })
@@ -191,9 +191,8 @@ export default {
         data: this.$store.state.user.storeInfo
       }
       text = JSON.stringify(text)
-      console.log(text)
       this.$store.dispatch('sendQtText', { text })
-    }, 5000)
+    }, 2000)
   }
 }
 </script>

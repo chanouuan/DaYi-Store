@@ -73,11 +73,38 @@ export const doctorCreateCard = (data) => {
   })
 }
 
-// 获取会诊列表
-export const getDoctorOrderList = (data) => {
+// 获取今日会诊列表
+export const getTodayOrderList = (data) => {
   data.token = getToken()
   return axios.request({
-    url: 'serverClinic/getDoctorOrderList',
+    url: 'serverClinic/getTodayOrderList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取支付方式
+export const getLocalPayWay = () => {
+  return axios.request({
+    url: 'serverClinic/getLocalPayWay',
+    method: 'get'
+  })
+}
+
+// 线下付款
+export const localCharge = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/localCharge',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取打印模板
+export const printTemplete = (data) => {
+  return axios.request({
+    url: 'serverClinic/printTemplete',
     data: data,
     method: 'post'
   })

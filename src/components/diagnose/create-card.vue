@@ -4,7 +4,17 @@
       {{ storeInfo.name }}
     </p>
     <div style="text-align:center">
-      <Button @click="voice" style="width: 150px; height: 150px;font-size: 80px" shape="circle" icon="ios-add"></Button>
+      <i-circle
+        :size="150"
+        :percent="33"
+        stroke-linecap="square"
+        stroke-color="#43a3fb"
+        style="cursor:pointer;"
+        @click.native="voice">
+        <div style="font-size:16px;">
+          开始会诊
+        </div>
+      </i-circle>
     </div>
   </Card>
 </template>

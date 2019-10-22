@@ -20,6 +20,7 @@ export default {
     access: '',
     hasGetInfo: false,
     storeInfo: {}, // 门店信息
+    advanced: false, // 会诊是否高级模式
     unreadCount: 0,
     messageUnreadList: [],
     messageReadedList: [],
@@ -51,6 +52,9 @@ export default {
     },
     setStoreInfo (state, storeInfo) {
       state.storeInfo = storeInfo
+    },
+    setAdvanced (state, advanced) {
+      state.advanced = advanced
     },
     setMessageCount (state, count) {
       state.unreadCount = count

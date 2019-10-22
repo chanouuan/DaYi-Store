@@ -10,8 +10,8 @@
           </FormItem>
         </Col>
         <Col span="4">
-          <FormItem label="用法" prop="usage">
-            <Select transfer v-model="note[1].usage" placeholder="用法">
+          <FormItem label="用法" prop="usages">
+            <Select transfer v-model="note[1].usages" placeholder="用法">
               <Option v-for="item in usageList[1]" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -64,7 +64,7 @@
         </Col>
         <Col span="6">
           <FormItem label="用法">
-            <Select transfer v-model="note[2].usage" placeholder="用法">
+            <Select transfer v-model="note[2].usages" placeholder="用法">
               <Option v-for="item in usageList[2]" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -129,7 +129,7 @@ export default {
           relation_id: 0,
           single_amount: '',
           total_amount: '',
-          usage: 0,
+          usages: 0,
           frequency: 0,
           drug_days: '',
           package_spec: '',
@@ -144,7 +144,7 @@ export default {
           category: 2,
           relation_id: 0,
           total_amount: '',
-          usage: 0,
+          usages: 0,
           dispense_unit: '',
           price: 0,
           amount: 0,
@@ -210,7 +210,7 @@ export default {
       this.note[1].relation_id = row.id
       this.note[1].single_amount = row.dosage_amount
       this.note[1].total_amount = 1
-      this.note[1].usage = 0
+      this.note[1].usages = 0
       this.note[1].frequency = 0
       this.note[1].drug_days = 1
       this.note[1].package_spec = row.package_spec
@@ -224,7 +224,7 @@ export default {
       this.note[2].name = row.name
       this.note[2].relation_id = row.id
       this.note[2].total_amount = 1
-      this.note[2].usage = 0
+      this.note[2].usages = 0
       this.note[2].dispense_unit = row.dispense_unit
       this.note[2].price = row.price
       this.note[2].amount = row.amount
@@ -247,11 +247,11 @@ export default {
         return this.$Message.error('此药方最多添加 5 项')
       }
       if (category === 1 || category === 2) {
-        if (!note.usage) {
+        if (!note.usages) {
           return this.$Message.error('请选择用法')
         }
         this.usageList[category].forEach(element => {
-          if (element.id === note.usage) note['usage_name'] = element.name
+          if (element.id === note.usages) note['usages_name'] = element.name
         })
       }
       if (category === 1) {

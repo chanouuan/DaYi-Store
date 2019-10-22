@@ -8,7 +8,22 @@
       {{ rotateModel }}
     </a>
     <div v-if="!advanced" style="text-align:center">
-      <Button @click="createCard(1)" style="width: 150px; height: 150px;font-size: 80px" shape="circle" icon="md-checkmark"></Button>
+      <div style="position:absolute;bottom:0;left:0">
+        <Button @click="backTo" type="text">
+          <Icon type="ios-arrow-back"></Icon> 返回上一步
+        </Button>
+      </div>
+      <i-circle
+        :size="150"
+        :percent="66"
+        stroke-linecap="square"
+        stroke-color="#43a3fb"
+        style="cursor:pointer;"
+        @click.native="createCard(1)">
+        <div style="font-size:16px;">
+          结束会诊
+        </div>
+      </i-circle>
     </div>
     <!-- 添加患者信息 -->
     <Form v-if="advanced" ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
@@ -87,7 +102,7 @@
         <Col span="3">{{ note.package_spec }}</Col>
         <Col span="3">{{ note.single_amount+note.dosage_unit }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-        <Col span="3">{{ note.usage_name }}</Col>
+        <Col span="3">{{ note.usages_name }}</Col>
         <Col span="3">{{ note.frequency_name }}</Col>
         <Col span="3">{{ note.drug_days }}天</Col>
         <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
@@ -96,7 +111,7 @@
         <Col span="1">{{ index+1 }}.</Col>
         <Col span="4">{{ note.name }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-        <Col span="15">{{ note.usage_name }}</Col>
+        <Col span="15">{{ note.usages_name }}</Col>
         <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
       </Row>
       <Row class="note-row" :key="index" v-else-if="note.category==3">
@@ -110,14 +125,16 @@
       </template>
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
       <FormItem style="text-align: right">
-        <Button :loading="submit" @click="backTo">返回上一步</Button>
+        <Button @click="backTo"><Icon type="ios-arrow-back"></Icon> 返回上一步</Button>
         <Button type="warning" style="margin-left: 8px" icon="ios-print" :loading="submit" @click="createCard(3)">打印</Button>
         <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(2)">保存并收费</Button>
         <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(1)">保存</Button>
       </FormItem>
     </Form>
     <!-- 添加处方笺 -->
-    <note-form ref="noteForm" v-if="advanced" @on-note="addNote"></note-form>
+    <note-form v-if="advanced" ref="noteForm" @on-note="addNote"></note-form>
+    <!-- 收费 -->
+    <Charge v-if="advanced" @on-charge-complete="chargeComplete" v-model="chargeModal" :money="chargeParam.money" :order_id="chargeParam.order_id"></Charge>
   </Card>
 </template>
 
@@ -125,22 +142,29 @@
 import {
   getAllergyEnum,
   getDoctorList,
-  doctorCreateCard
+  doctorCreateCard,
+  printTemplete
 } from '@/api/server'
 import NoteForm from '_c/diagnose/note-form'
 import ElementAutoComplete from '_c/diagnose/element-auto-complete'
-import { oneOf } from '@/libs/tools'
+import Charge from '_c/charge/charge'
 export default {
   name: 'advice-form',
   components: {
     NoteForm,
-    ElementAutoComplete
+    ElementAutoComplete,
+    Charge
   },
   props: {
     storeInfo: Object
   },
   data () {
     return {
+      chargeModal: false,
+      chargeParam: {
+        money: 0,
+        order_id: 0
+      },
       submit: false,
       advanced: false,
       allergy: [],
@@ -195,6 +219,8 @@ export default {
         title: '确认返回上一步吗？',
         content: '<p>本次会诊记录将不再保存。</p>',
         onOk: () => {
+          // 先结束录音
+          this.endVoice(0, '', '')
           this.$emit('on-back')
         }
       })
@@ -207,6 +233,10 @@ export default {
       this.formItem.patient_tel = row.telephone
       this.formItem.patient_age_year = ~~row.age_year
       this.formItem.patient_age_month = ~~row.age_month
+    },
+    chargeComplete (res) {
+      // 收费完成
+      this.$emit('on-success', res)
     },
     createCard (type) {
       // 创建订单
@@ -235,8 +265,15 @@ export default {
       }
       // 生成订单
       doctorCreateCard(data).then(res => {
-        this.endVoice(res.order_id, res.print_code)
-        this.$emit('on-success', res)
+        this.endVoice(type, res.order_id, res.print_code)
+        if (type === 2) {
+          // 收费
+          this.chargeParam.money = ~~this.totalMoney
+          this.chargeParam.order_id = ~~res.order_id
+          this.chargeModal = true
+        } else {
+          this.$emit('on-success', res)
+        }
       }).catch(err => {
         this.submit = false
         this.$Modal.error({
@@ -245,20 +282,48 @@ export default {
         })
       })
     },
-    endVoice (order_id, print_code) {
+    endVoice (type, order_id, print_code) {
       // 结束录音
-      let text = {
-        code: 101,
-        data: {
-          code: 2,
-          user_id: this.$store.state.user.userId,
-          order_id: order_id,
-          print_code: print_code
+      let text
+      if (type === 3) {
+        // 打印会诊单
+        printTemplete({ order_id: order_id, type: 201 }).then(res => {
+          text = {
+            code: 201,
+            data: {
+              user_id: this.$store.state.user.userId,
+              order_id: order_id,
+              content: res.content
+            }
+          }
+          text = JSON.stringify(text)
+          this.$store.dispatch('sendQtText', { text })
+        }).catch(err => {
+          this.$Message.error(err)
+          text = {
+            code: 101,
+            data: {
+              code: 2,
+              user_id: this.$store.state.user.userId,
+              order_id: order_id
+            }
+          }
+          text = JSON.stringify(text)
+          this.$store.dispatch('sendQtText', { text })
+        })
+      } else {
+        text = {
+          code: 101,
+          data: {
+            code: 2,
+            user_id: this.$store.state.user.userId,
+            order_id: order_id,
+            print_code: print_code
+          }
         }
+        text = JSON.stringify(text)
+        this.$store.dispatch('sendQtText', { text })
       }
-      text = JSON.stringify(text)
-      console.log(text)
-      this.$store.dispatch('sendQtText', { text })
     },
     addNote (note) {
       // 添加处方
@@ -277,14 +342,17 @@ export default {
     changeAdvanced () {
       // 切换模式
       this.advanced = !this.advanced
+      this.$store.commit('setAdvanced', this.advanced)
       this.loadData()
     },
     loadData () {
       if (!this.advanced) return
       // 当前登录人是否医生
-      if (oneOf(3, this.$store.state.user.role)) {
-        this.formItem.doctor_id = this.$store.state.user.userId
-      }
+      this.$store.state.user.role.forEach(element => {
+        if (element === 3) {
+          this.formItem.doctor_id = this.$store.state.user.userId
+        }
+      })
       // 获取过敏史
       if (!this.allergy.length) {
         getAllergyEnum().then(res => {
@@ -304,6 +372,7 @@ export default {
     }
   },
   mounted () {
+    this.advanced = this.$store.state.user.advanced
     this.loadData()
   }
 }

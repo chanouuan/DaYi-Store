@@ -25,7 +25,7 @@ export default {
   },
   actions: {
     //
-    createQtChannel ({ commit }) {
+    createQtChannel ({ state, commit }) {
       let baseUrl = config.qtChannelWebSocketAddr
       let beginTime = (new Date()).getTime()
       Notice.info({
@@ -33,6 +33,7 @@ export default {
         duration: 2
       })
       return new Promise((resolve, reject) => {
+        if (state.qtRunning) return
         const qtSocket = new WebSocket(baseUrl)
         qtSocket.onclose = () => {
           commit('setQtRunning', false)
@@ -52,7 +53,7 @@ export default {
             commit('setQtDialog', dialog)
             commit('setQtRunning', true)
             Notice.success({
-              title: '系统通信启动成功（' + parseFloat(((new Date()).getTime() - beginTime / 1000)).toFixed(2) + 's）',
+              title: '系统通信启动成功（' + parseFloat((new Date().getTime() - beginTime) / 1000).toFixed(2) + 's）',
               duration: 2
             })
           })
@@ -61,9 +62,7 @@ export default {
       })
     },
     sendQtText ({ state, commit }, { text }) {
-      if (!state.qtRunning) {
-        return
-      }
+      if (!state.qtRunning) return
       Notice.info({
         title: '发送消息',
         desc: text
@@ -71,9 +70,7 @@ export default {
       state.qtDialog.receiveText(text)
     },
     onQtMessage ({ state, commit }, fn) {
-      if (!state.qtRunning) {
-        return
-      }
+      if (!state.qtRunning) return
       state.qtDialog.sendText.connect((message) => {
         Notice.warning({
           title: '接收消息',
