@@ -90,15 +90,7 @@ export default {
     voice () {
       this.currentStep = 1
       // 录音
-      let text = {
-        code: 101,
-        data: {
-          code: 1,
-          user_id: this.$store.state.user.userId
-        }
-      }
-      text = JSON.stringify(text)
-      this.$store.dispatch('sendQtText', { text })
+      this.$store.dispatch('sendBeginVoiceCmd')
     },
     success (data) {
       this.currentStep = 2

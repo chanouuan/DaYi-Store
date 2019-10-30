@@ -8,6 +8,11 @@ import {
   removeReaded,
   restoreTrash
 } from '@/api/user'
+import {
+  getUsageEnum,
+  getNoteFrequencyEnum,
+  getLocalPayWay
+} from '@/api/server'
 import { setToken, getToken } from '@/libs/util'
 
 export default {
@@ -21,6 +26,9 @@ export default {
     hasGetInfo: false,
     storeInfo: {}, // 门店信息
     advanced: false, // 会诊是否高级模式
+    usageList: { 1: [], 2: [] }, // 药品使用方式
+    frequencyList: [], // 药品使用频率
+    localPayWay: [], // 线下支付方式
     unreadCount: 0,
     messageUnreadList: [],
     messageReadedList: [],
@@ -28,6 +36,15 @@ export default {
     messageContentStore: {}
   },
   mutations: {
+    setLocalPayWay (state, localPayWay) {
+      state.localPayWay = localPayWay
+    },
+    setUsage (state, usage) {
+      state.usageList = usage
+    },
+    setFrequency (state, frequency) {
+      state.frequencyList = frequency
+    },
     setAvator (state, avatorPath) {
       state.avatorImgPath = avatorPath
     },
@@ -128,6 +145,48 @@ export default {
           commit('setMessageCount', res.unread_count)
           commit('setHasGetInfo', true)
           commit('setStoreInfo', res.store_info)
+          resolve(res)
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    // 加载药品使用方式
+    getUsageList ({ state, commit }) {
+      if (state.usageList[1].length || state.usageList[2].length) {
+        return Promise.resolve(state.usageList)
+      }
+      return new Promise((resolve, reject) => {
+        getUsageEnum().then(res => {
+          commit('setUsage', res)
+          resolve(res)
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    // 加载药品使用频率
+    getFrequencyList ({ state, commit }) {
+      if (state.frequencyList.length) {
+        return Promise.resolve(state.frequencyList)
+      }
+      return new Promise((resolve, reject) => {
+        getNoteFrequencyEnum().then(res => {
+          commit('setFrequency', res)
+          resolve(res)
+        }).catch(err => {
+          reject(err)
+        })
+      })
+    },
+    // 获取线下支付方式
+    getLocalPayWay ({ state, commit }) {
+      if (state.localPayWay.length) {
+        return Promise.resolve(state.localPayWay)
+      }
+      return new Promise((resolve, reject) => {
+        getLocalPayWay().then(res => {
+          commit('setLocalPayWay', res)
           resolve(res)
         }).catch(err => {
           reject(err)

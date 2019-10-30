@@ -172,7 +172,7 @@ export default {
     })
     this.setBreadCrumb(this.$route)
     // 设置初始语言
-    this.setLocal(this.$i18n.locale)
+    // this.setLocal(this.$i18n.locale)
     // 如果当前打开页面不在标签栏中，跳到homeName页
     if (!this.tagNavList.find(item => item.name === this.$route.name)) {
       this.$router.push({
@@ -184,14 +184,11 @@ export default {
     setTimeout(() => {
       // 监听 qt
       this.$store.dispatch('onQtMessage', message => {
-        this.$Message.error(message)
+        this.$Notice.info({
+          title: message
+        })
       })
-      let text = {
-        code: 100,
-        data: this.$store.state.user.storeInfo
-      }
-      text = JSON.stringify(text)
-      this.$store.dispatch('sendQtText', { text })
+      this.$store.dispatch('sendLoginCmd')
     }, 2000)
   }
 }

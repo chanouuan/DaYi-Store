@@ -3,16 +3,16 @@ import qs from 'qs'
 import store from '@/store'
 import { hasKey } from '@/libs/tools'
 // import { Spin } from 'iview'
-const addErrorLog = errorInfo => {
-  const { statusText, status, request: { responseURL } } = errorInfo
-  let info = {
-    type: 'ajax',
-    code: status,
-    mes: statusText,
-    url: responseURL
-  }
-  if (!responseURL.includes('save_error_logger')) store.dispatch('addErrorLog', info)
-}
+// const addErrorLog = errorInfo => {
+//   const { statusText, status, request: { responseURL } } = errorInfo
+//   let info = {
+//     type: 'ajax',
+//     code: status,
+//     mes: statusText,
+//     url: responseURL
+//   }
+//   if (!responseURL.includes('save_error_logger')) store.dispatch('addErrorLog', info)
+// }
 
 class HttpRequest {
   constructor (baseUrl = baseURL) {
@@ -22,6 +22,7 @@ class HttpRequest {
   getInsideConfig () {
     const config = {
       baseURL: this.baseUrl,
+      timeout: 10,
       headers: {
         // 'Content-Type': 'application/json'
       }
@@ -38,21 +39,34 @@ class HttpRequest {
     // 请求拦截
     instance.interceptors.request.use(config => {
       // 添加全局的loading...
-      if (!Object.keys(this.queue).length) {
-        // Spin.show() // 不建议开启，因为界面不友好
-      }
-      this.queue[url] = true
+      // if (!Object.keys(this.queue).length) {
+      // Spin.show() // 不建议开启，因为界面不友好
+      // }
+      // this.queue[url] = true
       return config
     }, error => {
       return Promise.reject(error)
     })
     // 响应拦截
     instance.interceptors.response.use(res => {
-      this.destroy(url)
+      // this.destroy(url)
       const { data, status } = res
+      // 响应
+      if (data && typeof data === 'object' && hasKey(data, 'errorcode')) {
+        if (data.errorcode !== 0) {
+          // 用户未登录
+          if (data.errorcode === 3010) {
+            store.commit('setToken', '')
+            store.commit('setAccess', [])
+          }
+          return Promise.reject(data.message)
+        } else {
+          return data.result
+        }
+      }
       return { data, status }
     }, error => {
-      this.destroy(url)
+      // this.destroy(url)
       let errorInfo = error.response
       if (!errorInfo) {
         const { request: { statusText, status }, config } = JSON.parse(JSON.stringify(error))
@@ -62,39 +76,19 @@ class HttpRequest {
           request: { responseURL: config.url }
         }
       }
-      addErrorLog(errorInfo)
-      return Promise.reject(error)
+      // addErrorLog(errorInfo)
+      return Promise.reject(errorInfo.statusText || '连接超时，请检查网络！')
     })
   }
   request (options) {
     const instance = axios.create()
     options = Object.assign(this.getInsideConfig(), options)
-    // post 参数要格式化，否则服务端接收不到
+    // POST 参数要格式化，否则服务端接收不到
     if (hasKey(options, 'data')) {
       options.data = qs.stringify(options.data)
     }
     this.interceptors(instance, options.url)
-    return new Promise((resolve, reject) => {
-      instance(options).then(res => {
-        const data = res.data
-        if (data && typeof data === 'object' && hasKey(data, 'errorcode')) {
-          if (data.errorcode !== 0) {
-            // 用户未登录
-            if (data.errorcode === 3010) {
-              store.commit('setToken', '')
-              store.commit('setAccess', [])
-            }
-            reject(data.message)
-          } else {
-            resolve(data.result)
-          }
-        } else {
-          resolve(data)
-        }
-      }).catch(err => {
-        reject(err)
-      })
-    })
+    return instance(options)
   }
 }
 export default HttpRequest

@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach(to => {
-  setTitle(to, router.app)
+  setTitle(to, router.app, store.state.user.storeInfo.name)
   iView.LoadingBar.finish()
   window.scrollTo(0, 0)
 })

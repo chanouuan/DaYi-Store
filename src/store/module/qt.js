@@ -43,9 +43,7 @@ export default {
         }
         qtSocket.onerror = (error) => {
           commit('setQtRunning', false)
-          Notice.error({
-            title: '通信连接错误: ' + JSON.stringify(error)
-          })
+          console.error(JSON.stringify(error))
         }
         qtSocket.onopen = () => {
           qwebchannel.QWebChannel(qtSocket, (channel) => {
@@ -61,7 +59,7 @@ export default {
         commit('setQtSocket', qtSocket)
       })
     },
-    sendQtText ({ state, commit }, { text }) {
+    sendQtText ({ state }, { text }) {
       if (!state.qtRunning) return
       Notice.info({
         title: '发送消息',
@@ -69,7 +67,7 @@ export default {
       })
       state.qtDialog.receiveText(text)
     },
-    onQtMessage ({ state, commit }, fn) {
+    onQtMessage ({ state }, fn) {
       if (!state.qtRunning) return
       state.qtDialog.sendText.connect((message) => {
         Notice.warning({
@@ -78,6 +76,59 @@ export default {
         })
         fn && fn(message)
       })
+    },
+    sendLoginCmd ({ state, rootState }) {
+      // 登录
+      if (!state.qtRunning) return
+      const { user: { storeInfo } } = rootState
+      let text = {
+        code: 100,
+        data: {
+          'hospital_id': storeInfo.id,
+          'hospital_name': storeInfo.name
+        }
+      }
+      state.qtDialog.receiveText(JSON.stringify(text))
+    },
+    sendBeginVoiceCmd ({ state, rootState }) {
+      // 开始录音
+      if (!state.qtRunning) return
+      const { user: { userId, userName } } = rootState
+      let text = {
+        code: 101,
+        data: {
+          'user_id': userId,
+          'user_name': userName
+        }
+      }
+      state.qtDialog.receiveText(JSON.stringify(text))
+    },
+    sendEndVoiceCmd ({ state, rootState }, { order_id }) {
+      // 结束录音
+      if (!state.qtRunning) return
+      const { user: { userId, userName } } = rootState
+      let text = {
+        code: 102,
+        data: {
+          'user_id': userId,
+          'user_name': userName,
+          'order_id': order_id
+        }
+      }
+      state.qtDialog.receiveText(JSON.stringify(text))
+    },
+    sendPrintCmd ({ state }, { type, print_size, content }) {
+      // 打印
+      if (!state.qtRunning) return
+      let text = {
+        code: 300,
+        data: {
+          'type': type, // 1直接打印 2预览打印
+          'print_size': print_size, // A4 B5 D57
+          'content': content
+        }
+      }
+      state.qtDialog.receiveText(JSON.stringify(text))
     }
   }
 }

@@ -1,10 +1,12 @@
 <template>
   <Modal :value="model_value" :width="width" :mask-closable="false" @on-cancel="modalChange">
-    <p slot="header">付款</p>
+    <p slot="header">
+      付款
+    </p>
     <Card v-if="step===1" shadow>
       <p slot="title">应收金额：<span class="real">￥{{ money }}</span></p>
       <Row style="height:36px;line-height:36px;">
-        <Col span="8">
+        <Col span="9">
           <RadioGroup v-model="discountType" @on-change="changeDiscountType">
             <Radio label="0">无优惠</Radio>
             <Radio label="1">折扣比例</Radio>
@@ -38,7 +40,7 @@
         <Tabs v-model="paywayModel">
           <TabPane label="单种支付" name="single">
             <RadioGroup style="margin:10px 0 0 10px" v-model="singlePayway" @on-change="changeSinglePayway">
-              <Radio style="margin:0 100px 16px 0" v-for="item in paywayList" :key="item.id" :label="item.id">
+              <Radio style="margin:0 90px 16px 0" v-for="item in paywayList" :key="item.id" :label="item.id">
                 <img class="img" :src="paywayImg(item.id)"></img>
                 <span>{{ item.name }}</span>
               </Radio>
@@ -55,7 +57,7 @@
           </TabPane>
           <TabPane label="多种支付" name="multi">
             <CheckboxGroup style="margin:10px 0 0 10px" v-model="multiPayway" @on-change="changeMultiPayway">
-              <Checkbox style="margin:0 100px 16px 0" v-for="item in paywayList" :disabled="item.disabled" :key="item.id" :label="item.id">
+              <Checkbox style="margin:0 90px 16px 0" v-for="item in paywayList" :disabled="item.disabled" :key="item.id" :label="item.id">
                 <img class="img" :src="paywayImg(item.id)"></img>
                 <span>{{ item.name }}</span>
               </Checkbox>
@@ -96,7 +98,6 @@
 
 <script>
 import {
-  getLocalPayWay,
   localCharge
 } from '@/api/server'
 export default {
@@ -138,10 +139,14 @@ export default {
   },
   computed: {
     _preSingleAmount () {
-      return parseFloat(this.preSingleAmount - this.actualAmount).toFixed(2)
+      let amount = parseFloat(this.preSingleAmount)
+      amount = (isNaN(amount) || amount < 0) ? 0 : amount
+      return parseFloat(amount - this.actualAmount).toFixed(2)
     },
     _preMultiAmount () {
-      return this.preMultiAmount ? parseFloat(this.actualAmount - this.preMultiAmount).toFixed(2) : '0.00'
+      let amount = parseFloat(this.preMultiAmount)
+      amount = (isNaN(amount) || amount < 0) ? 0 : amount
+      return amount ? parseFloat(this.actualAmount - amount).toFixed(2) : '0.00'
     }
   },
   methods: {
@@ -154,7 +159,8 @@ export default {
         }
         this.discountAmount = parseFloat(this.money * (1 - this.discountVal / 100)).toFixed(2)
       } else if (this.discountType === '2') {
-        this.discountVal = ~~this.discountVal
+        this.discountVal = parseFloat(this.discountVal)
+        this.discountVal = isNaN(this.discountVal) ? 0 : this.discountVal
         if (this.discountVal <= 0 || this.discountVal > this.money) {
           return this.$Message.error('优惠金额不能大于应收金额')
         }
@@ -206,6 +212,7 @@ export default {
     },
     modalChange () {
       // 关闭
+      this.step = 1
       this.$emit('child-change', false)
       // 取消收费
       this.$emit('on-charge-complete', {
@@ -246,7 +253,7 @@ export default {
       }
       this.loading = true
       localCharge(data).then(res => {
-        this.loading = false
+        this.step = 1
         this.loading = false
         this.$emit('child-change', false)
         this.$emit('on-charge-complete', {
@@ -261,13 +268,11 @@ export default {
   },
   mounted () {
     // 获取支付方式
-    if (!this.paywayList.length) {
-      getLocalPayWay().then(res => {
-        this.paywayList = res
-      }).catch(err => {
-        this.$Message.error(err)
-      })
-    }
+    this.$store.dispatch('getLocalPayWay').then(res => {
+      this.paywayList = res
+    }).catch(err => {
+      this.$Message.error(err)
+    })
   }
 }
 </script>

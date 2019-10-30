@@ -11,7 +11,7 @@
         </Col>
         <Col span="4">
           <FormItem label="用法" prop="usages">
-            <Select transfer v-model="note[1].usages" placeholder="用法">
+            <Select transfer v-model="note[1].usages" placeholder="用法" filterable>
               <Option v-for="item in usageList[1]" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -25,7 +25,7 @@
         </Col>
         <Col span="4">
           <FormItem label="频率" prop="frequency">
-            <Select @on-change="frequencyChange" transfer v-model="note[1].frequency" placeholder="频率">
+            <Select @on-change="frequencyChange" transfer v-model="note[1].frequency" placeholder="频率" filterable>
               <Option v-for="item in frequencyList" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -64,7 +64,7 @@
         </Col>
         <Col span="6">
           <FormItem label="用法">
-            <Select transfer v-model="note[2].usages" placeholder="用法">
+            <Select transfer v-model="note[2].usages" placeholder="用法" filterable>
               <Option v-for="item in usageList[2]" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
@@ -104,10 +104,6 @@
 </template>
 
 <script>
-import {
-  getUsageEnum,
-  getNoteFrequencyEnum
-} from '@/api/server'
 import ElementAutoComplete from '_c/diagnose/element-auto-complete'
 export default {
   name: 'note-form',
@@ -115,12 +111,12 @@ export default {
     ElementAutoComplete
   },
   props: {
-    //
+    storeInfo: Object
   },
   data () {
     return {
       submit: false,
-      usageList: [],
+      usageList: {},
       frequencyList: [],
       note: {
         1: {
@@ -209,10 +205,11 @@ export default {
       this.note[1].name = row.name
       this.note[1].relation_id = row.id
       this.note[1].single_amount = row.dosage_amount
-      this.note[1].total_amount = 1
-      this.note[1].usages = 0
-      this.note[1].frequency = 0
+      this.note[1].usages = row.usages
+      this.note[1].frequency = row.frequency
       this.note[1].drug_days = 1
+      this.note[1].total_amount = 1
+      if (row.frequency) this.frequencyChange(row.frequency)
       this.note[1].package_spec = row.package_spec
       this.note[1].dispense_unit = row.dispense_unit
       this.note[1].dosage_unit = row.dosage_unit
@@ -224,7 +221,7 @@ export default {
       this.note[2].name = row.name
       this.note[2].relation_id = row.id
       this.note[2].total_amount = 1
-      this.note[2].usages = 0
+      this.note[2].usages = row.usages
       this.note[2].dispense_unit = row.dispense_unit
       this.note[2].price = row.price
       this.note[2].amount = row.amount
@@ -265,8 +262,8 @@ export default {
         if (note.drug_days <= 0) {
           return this.$Message.error('请填写天数')
         }
-        note.single_amount = ~~note.single_amount
-        if (note.single_amount <= 0) {
+        note.single_amount = parseFloat(note.single_amount)
+        if (isNaN(note.single_amount) || note.single_amount <= 0) {
           return this.$Message.error('请填写单量')
         }
       }
@@ -294,21 +291,17 @@ export default {
   },
   mounted () {
     // 加载药品使用方式
-    if (!this.usageList.length) {
-      getUsageEnum().then(res => {
-        this.usageList = res
-      }).catch(err => {
-        this.$Message.error(err)
-      })
-    }
+    this.$store.dispatch('getUsageList').then(res => {
+      this.usageList = res
+    }).catch(err => {
+      this.$Message.error(err)
+    })
     // 加载药品使用频率
-    if (!this.frequencyList.length) {
-      getNoteFrequencyEnum().then(res => {
-        this.frequencyList = res
-      }).catch(err => {
-        this.$Message.error(err)
-      })
-    }
+    this.$store.dispatch('getFrequencyList').then(res => {
+      this.frequencyList = res
+    }).catch(err => {
+      this.$Message.error(err)
+    })
   }
 }
 </script>

@@ -37,6 +37,22 @@ export const getUsageEnum = () => {
   })
 }
 
+// 获取药品剂型
+export const getDosageEnum = () => {
+  return axios.request({
+    url: 'serverClinic/getDosageEnum',
+    method: 'get'
+  })
+}
+
+// 获取药品单位
+export const getUnitEnum = () => {
+  return axios.request({
+    url: 'serverClinic/getUnitEnum',
+    method: 'get'
+  })
+}
+
 // 获取药品使用频率
 export const getNoteFrequencyEnum = () => {
   return axios.request({
@@ -50,6 +66,15 @@ export const searchDrug = (store_id, drug_type, name) => {
   return axios.request({
     url: 'serverClinic/searchDrug',
     data: { store_id, drug_type, name },
+    method: 'post'
+  })
+}
+
+// 查询药品
+export const searchDrugDict = (drug_type, name) => {
+  return axios.request({
+    url: 'serverClinic/searchDrugDict',
+    data: { drug_type, name },
     method: 'post'
   })
 }
@@ -73,11 +98,40 @@ export const doctorCreateCard = (data) => {
   })
 }
 
+// 编辑保存会诊单
+export const saveDoctorCard = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/saveDoctorCard',
+    data: data,
+    method: 'post'
+  })
+}
+
 // 获取今日会诊列表
 export const getTodayOrderList = (data) => {
   data.token = getToken()
   return axios.request({
     url: 'serverClinic/getTodayOrderList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取会诊列表
+export const getDoctorOrderList = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getDoctorOrderList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取会诊详情
+export const getDoctorOrderDetail = (data) => {
+  return axios.request({
+    url: 'serverClinic/getDoctorOrderDetail',
     data: data,
     method: 'post'
   })
@@ -105,6 +159,36 @@ export const localCharge = (data) => {
 export const printTemplete = (data) => {
   return axios.request({
     url: 'serverClinic/printTemplete',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 购药
+export const buyDrug = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/buyDrug',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 购药
+export const getDrugList = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getDrugList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 添加药品
+export const addDrug = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/addDrug',
     data: data,
     method: 'post'
   })

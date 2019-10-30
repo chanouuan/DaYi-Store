@@ -45,14 +45,14 @@
           <Row>
             <Col span="14">
             <FormItem label="年龄" :label-width="38">
-              <Input type="number" :maxlength="3" v-model="formItem.patient_age_year">
+              <Input :maxlength="3" v-model.number="formItem.patient_age_year">
                 <span slot="append">岁</span>
               </Input>
             </FormItem>
             </Col>
             <Col span="10">
             <FormItem label="" :label-width="5">
-              <Input type="number" :maxlength="2" v-model="formItem.patient_age_month">
+              <Input :maxlength="2" v-model.number="formItem.patient_age_month">
                 <span slot="append">月</span>
               </Input>
             </FormItem>
@@ -126,7 +126,7 @@
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
       <FormItem style="text-align: right">
         <Button @click="backTo"><Icon type="ios-arrow-back"></Icon> 返回上一步</Button>
-        <Button type="warning" style="margin-left: 8px" icon="ios-print" :loading="submit" @click="createCard(3)">打印</Button>
+        <Button type="warning" style="margin-left: 8px" icon="md-print" :loading="submit" @click="createCard(3)">打印</Button>
         <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(2)">保存并收费</Button>
         <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(1)">保存</Button>
       </FormItem>
@@ -220,7 +220,7 @@ export default {
         content: '<p>本次会诊记录将不再保存。</p>',
         onOk: () => {
           // 先结束录音
-          this.endVoice(0, '', '')
+          this.endVoice(1, '', '')
           this.$emit('on-back')
         }
       })
@@ -228,7 +228,7 @@ export default {
     selectPatientName (row) {
       // 患者信息
       this.formItem.patient_id = row.id
-      this.formItem.patient_name = row.name
+      this.formItem.patient_name = row.name || ''
       this.formItem.patient_gender = row.gender + ''
       this.formItem.patient_tel = row.telephone
       this.formItem.patient_age_year = ~~row.age_year
@@ -268,7 +268,7 @@ export default {
         this.endVoice(type, res.order_id, res.print_code)
         if (type === 2) {
           // 收费
-          this.chargeParam.money = ~~this.totalMoney
+          this.chargeParam.money = parseFloat(this.totalMoney)
           this.chargeParam.order_id = ~~res.order_id
           this.chargeModal = true
         } else {
@@ -284,46 +284,20 @@ export default {
     },
     endVoice (type, order_id, print_code) {
       // 结束录音
-      let text
-      if (type === 3) {
-        // 打印会诊单
-        printTemplete({ order_id: order_id, type: 201 }).then(res => {
-          text = {
-            code: 201,
-            data: {
-              user_id: this.$store.state.user.userId,
-              order_id: order_id,
-              content: res.content
-            }
-          }
-          text = JSON.stringify(text)
-          this.$store.dispatch('sendQtText', { text })
-        }).catch(err => {
-          this.$Message.error(err)
-          text = {
-            code: 101,
-            data: {
-              code: 2,
-              user_id: this.$store.state.user.userId,
-              order_id: order_id
-            }
-          }
-          text = JSON.stringify(text)
-          this.$store.dispatch('sendQtText', { text })
-        })
-      } else {
-        text = {
-          code: 101,
-          data: {
-            code: 2,
-            user_id: this.$store.state.user.userId,
-            order_id: order_id,
-            print_code: print_code
-          }
-        }
-        text = JSON.stringify(text)
-        this.$store.dispatch('sendQtText', { text })
+      this.$store.dispatch('sendEndVoiceCmd', { order_id })
+      if (type !== 3 && !print_code) return
+      // 打印
+      let text = {
+        type: 1, // 1直接打印 2预览打印
+        print_size: print_code ? 'D57' : 'A4', // A4 B5 D57
+        content: ''
       }
+      printTemplete({ order_id: order_id, type: print_code ? 1 : 2 }).then(res => {
+        text.content = res.content
+        this.$store.dispatch('sendPrintCmd', text)
+      }).catch(err => {
+        this.$Message.error(err)
+      })
     },
     addNote (note) {
       // 添加处方

@@ -21,7 +21,7 @@ export default [
     path: '/login',
     name: 'login',
     meta: {
-      title: 'Login - 登录',
+      title: '登录',
       hideInMenu: true
     },
     component: () => import('@/view/login/login.vue')
@@ -105,7 +105,7 @@ export default [
           icon: 'ios-cart',
           title: '购药'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/buy_drug/buy_drug.vue')
       }
     ]
   },
@@ -163,7 +163,7 @@ export default [
           icon: 'md-medkit',
           title: '添加药品'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/clinic/add_drug.vue')
       },
       {
         path: 'clinic_treatment_page',

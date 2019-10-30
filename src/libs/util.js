@@ -390,10 +390,12 @@ export const scrollTop = (el, from = 0, to, duration = 500, endCallback) => {
  * @description 根据当前跳转的路由设置显示在浏览器标签的title
  * @param {Object} routeItem 路由对象
  * @param {Object} vm Vue实例
+ * @param {String} storeName 诊所名称
  */
-export const setTitle = (routeItem, vm) => {
+export const setTitle = (routeItem, vm, storeName) => {
   const handledRoute = getRouteTitleHandled(routeItem)
   const pageTitle = showTitle(handledRoute, vm)
-  const resTitle = pageTitle ? `${title} - ${pageTitle}` : title
+  const curTitle = storeName || title
+  const resTitle = pageTitle ? `${curTitle} - ${pageTitle}` : curTitle
   window.document.title = resTitle
 }

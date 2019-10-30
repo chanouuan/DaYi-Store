@@ -14,7 +14,7 @@
       </Row>
       <Option v-for="(row, index) in rows" :index="index" :value="optionValue(row)" :key="row.id">
         <Row class-name="col-th">
-          <Col class-name="col-td" :span="24/columns.length" v-for="column in columns" :key="row.id+'-'+column.key">{{ row[column.key] }}</Col>
+          <Col class-name="col-td" :span="24/columns.length" v-for="column in columns" :key="row.id+'-'+column.key">{{ row[column.key] ? row[column.key] : '&nbsp;' }}</Col>
         </Row>
       </Option>
     </div>
@@ -25,6 +25,7 @@
 import {
   searchPatient,
   searchDrug,
+  searchDrugDict,
   searchTreatmentSheet
 } from '@/api/server'
 export default {
@@ -80,7 +81,7 @@ export default {
         }).catch(err => {
           this.$Message.error(err)
         })
-      }, 350)
+      }, 300)
     },
     handleSelect (value) {
       setTimeout(() => {
@@ -103,8 +104,17 @@ export default {
       if (this._apiname === 'searchChineseDrug') {
         return searchDrug(this.$store.state.user.storeInfo.id, 3, value)
       }
+      if (this._apiname === 'searchMaterial') {
+        return searchDrug(this.$store.state.user.storeInfo.id, 4, value)
+      }
       if (this._apiname === 'searchTreatmentSheet') {
         return searchTreatmentSheet(this.$store.state.user.storeInfo.id, value)
+      }
+      if (this._apiname === 'searchWestDrugDict') {
+        return searchDrugDict(1, value)
+      }
+      if (this._apiname === 'searchChineseDrugDict') {
+        return searchDrugDict(3, value)
       }
       return new Promise(function (resolve, reject) {
         let columns = [
