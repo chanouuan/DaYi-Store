@@ -25,8 +25,9 @@
         </div>
       </i-circle>
     </div>
+    <template v-else>
     <!-- 添加患者信息 -->
-    <Form v-if="advanced" ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
+    <Form ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
       <Row>
         <Col span="6">
           <FormItem label="姓名" prop="patient_name">
@@ -132,9 +133,10 @@
       </FormItem>
     </Form>
     <!-- 添加处方笺 -->
-    <note-form v-if="advanced" ref="noteForm" @on-note="addNote"></note-form>
+    <note-form ref="noteForm" @on-note="addNote"></note-form>
     <!-- 收费 -->
-    <Charge v-if="advanced" @on-charge-complete="chargeComplete" v-model="chargeModal" :money="chargeParam.money" :order_id="chargeParam.order_id"></Charge>
+    <Charge @on-charge-complete="chargeComplete" v-model="chargeModal" :money="chargeParam.money" :order_id="chargeParam.order_id"></Charge>
+    </template>
   </Card>
 </template>
 
@@ -261,26 +263,38 @@ export default {
           data.patient_age = data.patient_age_year + data.patient_age_month / 100
           data.patient_allergies = data.patient_allergies.join(';')
           data.notes = JSON.stringify(data.notes)
+          // 生成订单
+          doctorCreateCard(data).then(res => {
+            this.endVoice(type, res.order_id, res.print_code)
+            if (type === 2) {
+              // 收费
+              this.chargeParam.money = parseFloat(this.totalMoney)
+              this.chargeParam.order_id = ~~res.order_id
+              this.chargeModal = true
+            } else {
+              this.$emit('on-success', res)
+            }
+          }).catch(err => {
+            this.submit = false
+            this.$Modal.error({
+              title: '提示',
+              content: err
+            })
+          })
+        })
+      } else {
+        // 生成订单
+        doctorCreateCard(data).then(res => {
+          this.endVoice(type, res.order_id, res.print_code)
+          this.$emit('on-success', res)
+        }).catch(err => {
+          this.submit = false
+          this.$Modal.error({
+            title: '提示',
+            content: err
+          })
         })
       }
-      // 生成订单
-      doctorCreateCard(data).then(res => {
-        this.endVoice(type, res.order_id, res.print_code)
-        if (type === 2) {
-          // 收费
-          this.chargeParam.money = parseFloat(this.totalMoney)
-          this.chargeParam.order_id = ~~res.order_id
-          this.chargeModal = true
-        } else {
-          this.$emit('on-success', res)
-        }
-      }).catch(err => {
-        this.submit = false
-        this.$Modal.error({
-          title: '提示',
-          content: err
-        })
-      })
     },
     endVoice (type, order_id, print_code) {
       // 结束录音

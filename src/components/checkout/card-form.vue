@@ -215,19 +215,19 @@ export default {
         data.patient_age = data.patient_age_year + data.patient_age_month / 100
         data.patient_allergies = data.patient_allergies.join(';')
         data.notes = JSON.stringify(data.notes)
-      })
-      // 保存
-      saveDoctorCard(data).then(res => {
-        res.money = parseFloat(this.totalMoney)
-        res.order_id = ~~this.order_id
-        res.type = type
-        this.$emit('child-change', false)
-        this.$emit('on-success', res)
-      }).catch(err => {
-        this.submit = false
-        this.$Modal.error({
-          title: '提示',
-          content: err
+        // 保存
+        saveDoctorCard(data).then(res => {
+          res.money = parseFloat(this.totalMoney)
+          res.order_id = ~~this.order_id
+          res.type = type
+          this.$emit('child-change', false)
+          this.$emit('on-success', res)
+        }).catch(err => {
+          this.submit = false
+          this.$Modal.error({
+            title: '提示',
+            content: err
+          })
         })
       })
     },

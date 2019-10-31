@@ -9,20 +9,12 @@
       <Col span="21">
         <Form inline>
           <FormItem>
-            <Input style="width: 150px" v-model="search.name" :maxlength="20" type="text" placeholder="药品名称" clearable/>
+            <Input style="width: 150px" v-model="search.name" :maxlength="20" type="text" placeholder="编号/名称/简码" clearable/>
           </FormItem>
           <FormItem>
             <Select style="width: 150px" v-model="search.status" placeholder="药品状态" clearable>
               <Option value="0">停用</Option>
               <Option value="1">启用</Option>
-            </Select>
-          </FormItem>
-          <FormItem>
-            <Select style="width: 150px" v-model="search.drug_type" placeholder="药品类型" clearable>
-              <Option value="1">西药</Option>
-              <Option value="2">中成药</Option>
-              <Option value="3">草药</Option>
-              <Option value="4">材料</Option>
             </Select>
           </FormItem>
           <FormItem>
@@ -39,18 +31,18 @@
     </div>
   </Card>
   <!-- 新增 -->
-  <add-drug v-model="addPage" :id="selectId" @on-complete="addComplete"></add-drug>
+  <add-treatment v-model="addPage" :id="selectId" @on-complete="addComplete"></add-treatment>
   </div>
 </template>
 
 <script>
 import {
-  getDrugList
+  getTreatmentList
 } from '@/api/server'
-import AddDrug from '_c/clinic/add_drug'
+import AddTreatment from '_c/clinic/add_treatment'
 export default {
   components: {
-    AddDrug
+    AddTreatment
   },
   data () {
     return {
@@ -62,40 +54,28 @@ export default {
       current: 1,
       search: {
         name: '',
-        status: '',
-        drug_type: ''
+        status: ''
       },
       columns: [
         {
-          title: '名称',
+          title: '编号',
+          key: 'ident'
+        },
+        {
+          title: '项目名称',
           key: 'name'
         },
         {
-          title: '类型',
-          key: 'type_name'
+          title: '单位',
+          key: 'unit'
         },
         {
-          title: '库存',
-          key: 'amount',
-          render: (h, params) => {
-            return h('span', params.row.amount + params.row.dispense_unit)
-          }
+          title: '单价(元)',
+          key: 'price'
         },
         {
-          title: '规格',
-          key: 'package_spec'
-        },
-        {
-          title: '厂家',
-          key: 'manufactor_name'
-        },
-        {
-          title: '零售价',
-          key: 'retail_price'
-        },
-        {
-          title: '零售单位',
-          key: 'dispense_unit'
+          title: '提成',
+          key: 'royalty'
         },
         {
           title: '状态',
@@ -142,7 +122,7 @@ export default {
       data = data || {}
       data = Object.assign(data, this.search)
       if (!data.page) this.current = 1
-      getDrugList(data).then(res => {
+      getTreatmentList(data).then(res => {
         this.loading = false
         this.totalCount = res.total_count
         this.pageSize = res.page_size

@@ -1,5 +1,5 @@
 <template>
-  <Modal :value="model_value" :width="width" :mask-closable="false" @on-cancel="modalChange">
+  <Modal :value="model_value" :width="60" :styles="{top:'16px'}" :mask-closable="false" @on-cancel="modalChange">
     <p slot="header">
       付款
     </p>
@@ -109,11 +109,7 @@ export default {
   props: {
     model_value: Boolean,
     money: Number,
-    order_id: Number,
-    width: {
-      type: String,
-      default: '60'
-    }
+    order_id: Number
   },
   data () {
     return {

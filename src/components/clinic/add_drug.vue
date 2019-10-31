@@ -1,14 +1,14 @@
 <template>
   <Card shadow v-show="model_value">
-    <Tabs type="card" :value="selectTabName" @on-click="selectTab">
-      <TabPane label="西药/中成药" name="west">
+    <Tabs type="card" :value="selectTabName" @on-click="selectTab" :animated="false">
+      <TabPane label="西药/中成药" :disabled="id&&selectTabName!=='west'?true:false" name="west">
         <!-- 添加西药表单 -->
         <Form ref="addWestForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
           <Card shadow>
             <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
               药品信息
             </p>
-            <Row>
+            <Row v-show="!id">
               <Col span="8">
                 <FormItem label="药品查询">
                   <element-auto-complete v-model="westForm.drug_name" @on-select="selectWestDrugName" _placeholder="国药准字/药品名称/拼音码/五笔码/条形码" _apiname="searchWestDrugDict"></element-auto-complete>
@@ -171,22 +171,30 @@
                   </Select>
                 </FormItem>
               </Col>
+              <Col span="5" offset="4" v-show="id">
+                <FormItem label="启用状态">
+                  <RadioGroup v-model="westForm.status">
+                    <Radio label="">停用</Radio>
+                    <Radio label="1">启用</Radio>
+                  </RadioGroup>
+                </FormItem>
+              </Col>
             </Row>
           </Card>
           <div style="text-align: center;margin: 16px 0;">
-            <Button size="large" type="default" :loading="submit" @click="cancel('addWestForm')">取消</Button>
-            <Button size="large" type="primary" style="margin-left: 16px" :loading="submit" @click="save('addWestForm')">保存</Button>
+            <Button style="width: 150px" type="default" :loading="submit" @click="cancel('addWestForm')">取消</Button>
+            <Button type="primary" style="width: 150px;margin-left: 16px" :loading="submit" @click="save('addWestForm')">保存</Button>
           </div>
         </Form>
       </TabPane>
-      <TabPane label="中药" name="chinese">
+      <TabPane label="中药" :disabled="id&&selectTabName!=='chinese'?true:false" name="chinese">
         <!-- 添加中药表单 -->
         <Form ref="addChineseForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
           <Card shadow>
             <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
               药品信息
             </p>
-            <Row>
+            <Row v-show="!id">
               <Col span="8">
                 <FormItem label="药品查询">
                   <element-auto-complete v-model="westForm.drug_name" @on-select="selectWestDrugName" _placeholder="药品名称/拼音码/五笔码" _apiname="searchChineseDrugDict"></element-auto-complete>
@@ -273,15 +281,23 @@
                   </Select>
                 </FormItem>
               </Col>
+              <Col span="5" offset="4" v-show="id">
+                <FormItem label="启用状态">
+                  <RadioGroup v-model="westForm.status">
+                    <Radio label="">停用</Radio>
+                    <Radio label="1">启用</Radio>
+                  </RadioGroup>
+                </FormItem>
+              </Col>
             </Row>
           </Card>
           <div style="text-align: center;margin: 16px 0;">
-            <Button size="large" type="default" :loading="submit" @click="cancel('addChineseForm')">取消</Button>
-            <Button size="large" type="primary" style="margin-left: 16px" :loading="submit" @click="save('addChineseForm')">保存</Button>
+            <Button style="width: 150px" type="default" :loading="submit" @click="cancel('addChineseForm')">取消</Button>
+            <Button type="primary" style="width: 150px;margin-left: 16px" :loading="submit" @click="save('addChineseForm')">保存</Button>
           </div>
         </Form>
       </TabPane>
-      <TabPane label="材料" name="material">
+      <TabPane label="材料" :disabled="id&&selectTabName!=='material'?true:false" name="material">
         <!-- 添加材料表单 -->
         <Form ref="addMaterialForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
           <Card shadow>
@@ -340,11 +356,19 @@
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
               </Col>
+              <Col span="5" v-show="id">
+                <FormItem label="启用状态">
+                  <RadioGroup v-model="westForm.status">
+                    <Radio label="">停用</Radio>
+                    <Radio label="1">启用</Radio>
+                  </RadioGroup>
+                </FormItem>
+              </Col>
             </Row>
           </Card>
           <div style="text-align: center;margin: 16px 0;">
-            <Button size="large" type="default" :loading="submit" @click="cancel('addMaterialForm')">取消</Button>
-            <Button size="large" type="primary" style="margin-left: 16px" :loading="submit" @click="save('addMaterialForm')">保存</Button>
+            <Button style="width: 150px" type="default" :loading="submit" @click="cancel('addMaterialForm')">取消</Button>
+            <Button type="primary" style="width: 150px;margin-left: 16px" :loading="submit" @click="save('addMaterialForm')">保存</Button>
           </div>
         </Form>
       </TabPane>
@@ -356,7 +380,8 @@
 import {
   getDosageEnum,
   getUnitEnum,
-  addDrug
+  saveDrug,
+  getDrugInfo
 } from '@/api/server'
 import ElementAutoComplete from '_c/diagnose/element-auto-complete'
 export default {
@@ -369,7 +394,11 @@ export default {
     event: 'child-change'
   },
   props: {
-    model_value: Boolean
+    model_value: Boolean,
+    id: {
+      type: Number,
+      default: 0
+    }
   },
   data () {
     const validateRequire = (rule, value, callback) => {
@@ -396,11 +425,11 @@ export default {
     }
     return {
       submit: false,
-      selectTabName: 'west',
       dosageList: {},
       unitList: [],
       usageList: {},
       frequencyList: [],
+      selectTabName: 'west',
       westForm: {
         drug_name: '',
         name: '',
@@ -423,7 +452,8 @@ export default {
         retail_price: '',
         is_antibiotic: '',
         usages: '',
-        frequency: ''
+        frequency: '',
+        status: ''
       },
       ruleWestForm: {
         name: [
@@ -498,18 +528,28 @@ export default {
           this.submit = false
           return
         }
-        if (formRef === 'addMaterialForm') this.westForm.drug_type = 4
-        addDrug(this.westForm).then(res => {
+        if (formRef === 'addMaterialForm') {
+          this.westForm.drug_type = 4
+        }
+        this.westForm.id = this.id
+        saveDrug(this.westForm).then(res => {
           this.submit = false
-          this.clearData()
-          this.$refs[formRef].resetFields()
-          this.$Modal.confirm({
-            title: '成功提示',
-            content: '添加成功<br>是否继续添加？',
-            onCancel: () => {
-              this.cancel()
-            }
-          })
+          if (this.id) {
+            // 编辑成功
+            this.cancel(formRef)
+          } else {
+            // 添加成功
+            this.$Modal.confirm({
+              title: '成功提示',
+              content: '<p>操作成功</p><p>是否继续添加？</p>',
+              onOk: () => {
+                this.clearData()
+              },
+              onCancel: () => {
+                this.cancel(formRef)
+              }
+            })
+          }
         }).catch(err => {
           this.submit = false
           this.$Modal.error({
@@ -520,6 +560,19 @@ export default {
       })
     },
     loadData () {
+      // 加载药品信息
+      if (this.id) {
+        this.submit = true
+        getDrugInfo(this.id).then(res => {
+          this.submit = false
+          this.westForm = Object.assign(this.westForm, res)
+          if (res.drug_type === '4') this.selectTabName = 'material'
+          else if (res.drug_type === '3') this.selectTabName = 'chinese'
+          else this.selectTabName = 'west'
+        }).catch(err => {
+          this.$Message.error(err)
+        })
+      }
       // 获取药品剂型
       if (!this.dosageList[1] || !this.dosageList[2]) {
         getDosageEnum().then(res => {

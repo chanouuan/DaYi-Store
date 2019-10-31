@@ -174,7 +174,7 @@ export const buyDrug = (data) => {
   })
 }
 
-// 购药
+// 药品列表
 export const getDrugList = (data) => {
   data.token = getToken()
   return axios.request({
@@ -185,11 +185,49 @@ export const getDrugList = (data) => {
 }
 
 // 添加药品
-export const addDrug = (data) => {
+export const saveDrug = (data) => {
   data.token = getToken()
   return axios.request({
-    url: 'serverClinic/addDrug',
+    url: 'serverClinic/saveDrug',
     data: data,
     method: 'post'
+  })
+}
+
+// 获取药品信息
+export const getDrugInfo = (id) => {
+  return axios.request({
+    url: 'serverClinic/getDrugInfo',
+    params: { id },
+    method: 'get'
+  })
+}
+
+// 诊疗项目列表
+export const getTreatmentList = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getTreatmentList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 添加诊疗项目
+export const saveTreatment = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/saveTreatment',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取诊疗项目信息
+export const getTreatmentInfo = (id) => {
+  return axios.request({
+    url: 'serverClinic/getTreatmentInfo',
+    params: { id },
+    method: 'get'
   })
 }

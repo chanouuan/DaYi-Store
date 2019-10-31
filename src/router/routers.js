@@ -43,7 +43,7 @@ export default [
           hideInMenu: true,
           title: '首页',
           notCache: true,
-          icon: 'md-home'
+          icon: 'ios-home'
         },
         component: () => import('@/view/single-page/home')
       }
@@ -62,7 +62,7 @@ export default [
         path: 'checkout_page',
         name: 'checkout_page',
         meta: {
-          icon: 'logo-yen',
+          icon: 'ios-desktop',
           title: '收银台'
         },
         component: () => import('@/view/checkout/checkout.vue')
@@ -82,7 +82,7 @@ export default [
         path: 'diagnose_page',
         name: 'diagnose_page',
         meta: {
-          icon: 'md-person',
+          icon: 'ios-person',
           title: '接诊'
         },
         component: () => import('@/view/diagnose/diagnose.vue')
@@ -122,7 +122,7 @@ export default [
         path: 'stock_page',
         name: 'stock_page',
         meta: {
-          icon: 'md-filing',
+          icon: 'ios-archive',
           title: '库存管理'
         },
         component: () => import('@/view/join-page.vue')
@@ -131,7 +131,7 @@ export default [
         path: 'stock_pull_page',
         name: 'stock_pull_page',
         meta: {
-          icon: 'md-arrow-round-down',
+          icon: 'ios-arrow-round-down',
           title: '入存管理'
         },
         component: () => import('@/view/join-page.vue')
@@ -140,7 +140,7 @@ export default [
         path: 'stock_push_page',
         name: 'stock_push_page',
         meta: {
-          icon: 'md-arrow-round-up',
+          icon: 'ios-arrow-round-up',
           title: '出存管理'
         },
         component: () => import('@/view/join-page.vue')
@@ -157,28 +157,28 @@ export default [
     },
     children: [
       {
-        path: 'clinic_drug_page',
-        name: 'clinic_drug_page',
+        path: 'add_drug_page',
+        name: 'add_drug_page',
         meta: {
-          icon: 'md-medkit',
+          icon: 'ios-medkit',
           title: '添加药品'
         },
         component: () => import('@/view/clinic/add_drug.vue')
       },
       {
-        path: 'clinic_treatment_page',
-        name: 'clinic_treatment_page',
+        path: 'add_treatment_page',
+        name: 'add_treatment_page',
         meta: {
-          icon: 'md-headset',
+          icon: 'ios-headset',
           title: '诊疗项目'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/clinic/add_treatment.vue')
       },
       {
         path: 'clinic_employee_page',
         name: 'clinic_employee_page',
         meta: {
-          icon: 'md-people',
+          icon: 'ios-people',
           title: '员工管理'
         },
         component: () => import('@/view/join-page.vue')
