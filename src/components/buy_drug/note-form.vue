@@ -97,7 +97,7 @@ export default {
     ElementAutoComplete
   },
   props: {
-    storeInfo: Object
+    clinicInfo: Object
   },
   data () {
     return {

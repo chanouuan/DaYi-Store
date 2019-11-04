@@ -1,7 +1,7 @@
 <template>
   <Card shadow>
     <p slot="title">
-      {{ storeInfo.name }}
+      {{ clinicInfo.name }}
     </p>
     <div style="text-align:center">
       <i-circle
@@ -23,7 +23,7 @@
 export default {
   name: 'create-card',
   props: {
-    storeInfo: Object
+    clinicInfo: Object
   },
   data () {
     return {

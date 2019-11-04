@@ -1,10 +1,11 @@
 import axios from '@/libs/api.request'
 import md5 from 'js-md5'
 
-export const login = ({ userName, password }) => {
+export const login = ({ userName, password, clinic_id }) => {
   const data = {
     username: userName,
-    password: md5(password)
+    password: md5(password),
+    clinic_id: clinic_id
   }
   return axios.request({
     url: 'serverClinic/login',

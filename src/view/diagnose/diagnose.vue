@@ -8,9 +8,9 @@
           <Step title="完成" content="医生就诊结束"></Step>
         </Steps>
       </Card>
-      <CreateCard @on-voice="voice" :storeInfo="storeInfo" v-if="currentStep==0"></CreateCard>
-      <AdviceForm @on-back="back" @on-success="success" :storeInfo="storeInfo" v-else-if="currentStep==1"></AdviceForm>
-      <CompleteCard @on-complete="complete" :storeInfo="storeInfo" v-else-if="currentStep==2"></CompleteCard>
+      <CreateCard @on-voice="voice" :clinicInfo="clinicInfo" v-if="currentStep==0"></CreateCard>
+      <AdviceForm @on-back="back" @on-success="success" :clinicInfo="clinicInfo" v-else-if="currentStep==1"></AdviceForm>
+      <CompleteCard @on-complete="complete" :clinicInfo="clinicInfo" v-else-if="currentStep==2"></CompleteCard>
     </Col>
     <Col span="6">
       <Card shadow>
@@ -47,7 +47,7 @@ export default {
       pageSize: 5,
       currentPage: new Date(),
       current: 1,
-      storeInfo: {
+      clinicInfo: {
         id: 0,
         name: ''
       },
@@ -138,7 +138,7 @@ export default {
     }
   },
   created () {
-    this.storeInfo = this.$store.state.user.storeInfo
+    this.clinicInfo = this.$store.state.user.clinicInfo
     this.loadDoctorOrderList()
   }
 }

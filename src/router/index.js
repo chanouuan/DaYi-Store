@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routers'
 import store from '@/store'
-import iView from 'iview'
+import { LoadingBar } from 'view-design'
 import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
 import config from '@/config'
 const { homeName } = config
@@ -20,7 +20,7 @@ const turnTo = (to, access, next) => {
 }
 
 router.beforeEach((to, from, next) => {
-  iView.LoadingBar.start()
+  LoadingBar.start()
   const token = getToken()
   if (!token && to.name !== LOGIN_PAGE_NAME) {
     // 未登录且要跳转的页面不是登录页
@@ -53,8 +53,8 @@ router.beforeEach((to, from, next) => {
 })
 
 router.afterEach(to => {
-  setTitle(to, router.app, store.state.user.storeInfo.name)
-  iView.LoadingBar.finish()
+  setTitle(to, router.app, store.state.user.clinicInfo.name)
+  LoadingBar.finish()
   window.scrollTo(0, 0)
 })
 

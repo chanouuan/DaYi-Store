@@ -3,7 +3,7 @@
     <Tabs type="card" :value="selectTabName" @on-click="selectTab" :animated="false">
       <TabPane label="西药/中成药" :disabled="id&&selectTabName!=='west'?true:false" name="west">
         <!-- 添加西药表单 -->
-        <Form ref="addWestForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
+        <Form ref="addWestForm" :rules="ruleWestForm" :model="westForm" :label-width="100">
           <Card shadow>
             <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
               药品信息
@@ -66,7 +66,7 @@
                 </FormItem>
               </Col>
               <Col span="8">
-                <FormItem label="药品本位码">
+                <FormItem label="本位码">
                   <Input :maxlength="20" v-model.trim="westForm.standard_code"/>
                 </FormItem>
               </Col>
@@ -102,7 +102,7 @@
               <Col span="2">
                 <FormItem label="" :label-width="3">
                   <Select v-model="westForm.dosage_unit" placeholder="剂量单位" transfer filterable>
-                    <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
+                    <Option v-for="(item, index) in unitList[1]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
@@ -114,14 +114,14 @@
               <Col span="2">
                 <FormItem label="" :label-width="3">
                   <Select v-model="westForm.basic_unit" placeholder="制剂单位" transfer filterable>
-                    <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
+                    <Option v-for="(item, index) in unitList[2]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
               <Col span="3">
                 <FormItem label="/" :label-width="30">
                   <Select v-model="westForm.dispense_unit" placeholder="库存单位" transfer filterable>
-                    <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
+                    <Option v-for="(item, index) in unitList[3]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
@@ -142,11 +142,11 @@
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
               </Col>
-              <Col span="6" offset="1">
-                <FormItem label="是否抗菌药物" :label-width="100" style="margin-bottom: 2px">
+              <Col span="7" offset="1">
+                <FormItem label="是否抗菌药物" style="margin-bottom: 2px">
                   <RadioGroup v-model="westForm.is_antibiotic">
-                    <Radio label="">否</Radio>
-                    <Radio label="1">是</Radio>
+                    <Radio label="" border>否</Radio>
+                    <Radio label="1" border>是</Radio>
                   </RadioGroup>
                 </FormItem>
               </Col>
@@ -164,18 +164,18 @@
                   </Select>
                 </FormItem>
               </Col>
-              <Col span="5" offset="4">
+              <Col span="5" offset="3">
                 <FormItem label="默认频率">
                   <Select transfer v-model="westForm.frequency" filterable>
                     <Option v-for="item in frequencyList" :value="item.id" :key="item.id">{{ item.name }}</Option>
                   </Select>
                 </FormItem>
               </Col>
-              <Col span="5" offset="4" v-show="id">
+              <Col span="7" offset="3" v-show="id">
                 <FormItem label="启用状态">
                   <RadioGroup v-model="westForm.status">
-                    <Radio label="">停用</Radio>
-                    <Radio label="1">启用</Radio>
+                    <Radio label="" border>停用</Radio>
+                    <Radio label="1" border>启用</Radio>
                   </RadioGroup>
                 </FormItem>
               </Col>
@@ -189,7 +189,7 @@
       </TabPane>
       <TabPane label="中药" :disabled="id&&selectTabName!=='chinese'?true:false" name="chinese">
         <!-- 添加中药表单 -->
-        <Form ref="addChineseForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
+        <Form ref="addChineseForm" :rules="ruleWestForm" :model="westForm" :label-width="100">
           <Card shadow>
             <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
               药品信息
@@ -239,7 +239,7 @@
             </Row>
             <Row>
               <Col span="8">
-                <FormItem label="药品本位码" style="margin-bottom: 0">
+                <FormItem label="本位码" style="margin-bottom: 0">
                   <Input :maxlength="20" v-model.trim="westForm.standard_code"/>
                 </FormItem>
               </Col>
@@ -258,7 +258,7 @@
               <Col span="4">
                 <FormItem label="零售单位" prop="dispense_unit" style="margin-bottom: 2px">
                   <Select v-model="westForm.dispense_unit" placeholder="零售单位" transfer filterable>
-                    <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
+                    <Option v-for="(item, index) in unitList[4]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
@@ -281,11 +281,11 @@
                   </Select>
                 </FormItem>
               </Col>
-              <Col span="5" offset="4" v-show="id">
+              <Col span="7" offset="3" v-show="id">
                 <FormItem label="启用状态">
                   <RadioGroup v-model="westForm.status">
-                    <Radio label="">停用</Radio>
-                    <Radio label="1">启用</Radio>
+                    <Radio label="" border>停用</Radio>
+                    <Radio label="1" border>启用</Radio>
                   </RadioGroup>
                 </FormItem>
               </Col>
@@ -299,7 +299,7 @@
       </TabPane>
       <TabPane label="材料" :disabled="id&&selectTabName!=='material'?true:false" name="material">
         <!-- 添加材料表单 -->
-        <Form ref="addMaterialForm" :rules="ruleWestForm" :model="westForm" :label-width="80">
+        <Form ref="addMaterialForm" :rules="ruleWestForm" :model="westForm" :label-width="100">
           <Card shadow>
             <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
               基本属性
@@ -347,7 +347,7 @@
               <Col span="4">
                 <FormItem label="零售单位" prop="dispense_unit" style="margin-bottom: 2px">
                   <Select v-model="westForm.dispense_unit" placeholder="零售单位" transfer filterable>
-                    <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
+                    <Option v-for="(item, index) in unitList[4]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
@@ -356,11 +356,11 @@
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
               </Col>
-              <Col span="5" v-show="id">
+              <Col span="7" v-show="id">
                 <FormItem label="启用状态">
                   <RadioGroup v-model="westForm.status">
-                    <Radio label="">停用</Radio>
-                    <Radio label="1">启用</Radio>
+                    <Radio label="" border>停用</Radio>
+                    <Radio label="1" border>启用</Radio>
                   </RadioGroup>
                 </FormItem>
               </Col>
@@ -379,10 +379,11 @@
 <script>
 import {
   getDosageEnum,
-  getUnitEnum,
+  getDrugUnitEnum,
   saveDrug,
   getDrugInfo
 } from '@/api/server'
+import { wordToPy, wordToWb } from '@/libs/wordtopy'
 import ElementAutoComplete from '_c/diagnose/element-auto-complete'
 export default {
   name: 'add-drug',
@@ -425,8 +426,9 @@ export default {
     }
     return {
       submit: false,
+      t: null,
       dosageList: {},
-      unitList: [],
+      unitList: {},
       usageList: {},
       frequencyList: [],
       selectTabName: 'west',
@@ -492,6 +494,15 @@ export default {
         this.loadData()
       } else {
         this.clearData()
+      }
+    },
+    'westForm.name': {
+      handler () {
+        clearTimeout(this.t)
+        this.t = setTimeout(() => {
+          this.westForm.py_code = wordToPy(this.westForm.name)
+          this.westForm.wb_code = wordToWb(this.westForm.name)
+        }, 500)
       }
     }
   },
@@ -574,7 +585,7 @@ export default {
         })
       }
       // 获取药品剂型
-      if (!this.dosageList[1] || !this.dosageList[2]) {
+      if (!this.dosageList[1]) {
         getDosageEnum().then(res => {
           this.dosageList = res
         }).catch(err => {
@@ -582,15 +593,15 @@ export default {
         })
       }
       // 获取药品单位
-      if (!this.unitList.length) {
-        getUnitEnum().then(res => {
+      if (!this.unitList[1]) {
+        getDrugUnitEnum().then(res => {
           this.unitList = res
         }).catch(err => {
           this.$Message.error(err)
         })
       }
       // 加载药品使用方式
-      if (!this.usageList[1] || !this.usageList[2]) {
+      if (!this.usageList[1]) {
         this.$store.dispatch('getUsageList').then(res => {
           this.usageList = res
         }).catch(err => {

@@ -1,15 +1,15 @@
 <template>
   <div class="side-menu-wrapper">
     <slot></slot>
-    <Menu ref="menu" v-show="!collapsed" :active-name="activeName" :open-names="openedNames" :accordion="accordion" :theme="theme" width="auto" @on-select="handleSelect">
+    <Menu ref="menu" v-show="!collapsed" :active-name="activeName" :open-names="openedNames" :accordion="accordion" :theme="theme" width="180px" @on-select="handleSelect">
       <template v-for="item in menuList">
         <template v-if="item.children && item.children.length === 1">
           <side-menu-item v-if="showChildren(item)" :key="`menu-${item.name}`" :parent-item="item"></side-menu-item>
-          <menu-item v-else :name="getNameOrHref(item, true)" :key="`menu-${item.children[0].name}`"><common-icon :size="iconSize" :type="item.children[0].icon || ''"/><span>{{ showTitle(item.children[0]) }}</span></menu-item>
+          <menu-item v-else :name="getNameOrHref(item, true)" :key="`menu-${item.children[0].name}`"><common-icon :size="rootIconSize" :type="item.children[0].icon || ''"/><span>{{ showTitle(item.children[0]) }}</span></menu-item>
         </template>
         <template v-else>
           <side-menu-item v-if="showChildren(item)" :key="`menu-${item.name}`" :parent-item="item"></side-menu-item>
-          <menu-item v-else :name="getNameOrHref(item)" :key="`menu-${item.name}`"><common-icon :size="iconSize" :type="item.icon || ''"/><span>{{ showTitle(item) }}</span></menu-item>
+          <menu-item v-else :name="getNameOrHref(item)" :key="`menu-${item.name}`"><common-icon :size="rootIconSize" :type="item.icon || ''"/><span>{{ showTitle(item) }}</span></menu-item>
         </template>
       </template>
     </Menu>
@@ -88,6 +88,12 @@ export default {
   computed: {
     textColor () {
       return this.theme === 'dark' ? '#fff' : '#495060'
+    },
+    menuitemClasses () {
+      return [
+        'menu-item',
+        this.collapsed ? 'collapsed-menu' : ''
+      ]
     }
   },
   watch: {

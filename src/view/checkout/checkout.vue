@@ -111,10 +111,6 @@ export default {
       },
       columns: [
         {
-          title: '编号',
-          key: 'id'
-        },
-        {
           title: '来源',
           key: 'source'
         },

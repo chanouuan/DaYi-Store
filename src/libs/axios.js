@@ -1,7 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
 import store from '@/store'
-import { hasKey } from '@/libs/tools'
 // import { Spin } from 'iview'
 // const addErrorLog = errorInfo => {
 //   const { statusText, status, request: { responseURL } } = errorInfo
@@ -52,7 +51,7 @@ class HttpRequest {
       // this.destroy(url)
       const { data, status } = res
       // 响应
-      if (data && typeof data === 'object' && hasKey(data, 'errorcode')) {
+      if (data && typeof data === 'object' && 'errorcode' in data) {
         if (data.errorcode !== 0) {
           // 用户未登录
           if (data.errorcode === 3010) {
@@ -84,7 +83,7 @@ class HttpRequest {
     const instance = axios.create()
     options = Object.assign(this.getInsideConfig(), options)
     // POST 参数要格式化，否则服务端接收不到
-    if (hasKey(options, 'data')) {
+    if (options && 'data' in options) {
       options.data = qs.stringify(options.data)
     }
     this.interceptors(instance, options.url)

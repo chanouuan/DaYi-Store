@@ -1,6 +1,6 @@
 <template>
   <Layout style="height: 100%" class="main">
-    <Sider hide-trigger collapsible :width="256" :collapsed-width="64" v-model="collapsed" class="left-sider" :style="{overflow: 'hidden'}">
+    <Sider hide-trigger collapsible :width="180" :collapsed-width="64" v-model="collapsed" class="left-sider" :style="{overflow: 'hidden'}">
       <side-menu accordion ref="sideMenu" :active-name="$route.name" :collapsed="collapsed" @on-select="turnToPage" :menu-list="menuList">
         <!-- 需要放在菜单上面的内容，如Logo，写在side-menu标签内部，如下 -->
         <div class="logo-con">
@@ -13,9 +13,6 @@
       <Header class="header-con">
         <header-bar :collapsed="collapsed" @on-coll-change="handleCollapsedChange">
           <user :message-unread-count="unreadCount" :user-avator="userAvator"/>
-          <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>
-          <error-store v-if="$config.plugin['error-store'] && $config.plugin['error-store'].showInHeader" :has-read="hasReadErrorPage" :count="errorCount"></error-store>
-          <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/>
         </header-bar>
       </Header>
       <Content class="main-content-con">
@@ -40,10 +37,7 @@ import HeaderBar from './components/header-bar'
 import TagsNav from './components/tags-nav'
 import User from './components/user'
 import ABackTop from './components/a-back-top'
-import Fullscreen from './components/fullscreen'
-import Language from './components/language'
-import ErrorStore from './components/error-store'
-import { mapMutations, mapActions, mapGetters } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 import { getNewTagList, routeEqual } from '@/libs/util'
 import routers from '@/router/routers'
 import minLogo from '@/assets/images/logo-min.jpg'
@@ -54,10 +48,7 @@ export default {
   components: {
     SideMenu,
     HeaderBar,
-    Language,
     TagsNav,
-    Fullscreen,
-    ErrorStore,
     User,
     ABackTop
   },
@@ -65,14 +56,10 @@ export default {
     return {
       collapsed: true,
       minLogo,
-      maxLogo,
-      isFullscreen: false
+      maxLogo
     }
   },
   computed: {
-    ...mapGetters([
-      'errorCount'
-    ]),
     tagNavList () {
       return this.$store.state.app.tagNavList
     },
@@ -123,6 +110,7 @@ export default {
         window.open(name.split('_')[1])
         return
       }
+      if (this.$route.name === name) return
       this.$router.push({
         name,
         params,
@@ -188,7 +176,7 @@ export default {
           title: message
         })
       })
-      this.$store.dispatch('sendLoginCmd')
+      // this.$store.dispatch('sendLoginCmd')
     }, 2000)
   }
 }

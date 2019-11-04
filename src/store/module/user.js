@@ -18,15 +18,14 @@ import { setToken, getToken } from '@/libs/util'
 export default {
   state: {
     userName: '',
-    userId: '',
+    userId: 0,
     avatorImgPath: '',
     token: getToken(),
-    role: '',
-    access: '',
+    access: [],
     hasGetInfo: false,
-    storeInfo: {}, // 门店信息
+    clinicInfo: {}, // 诊所信息
     advanced: false, // 会诊是否高级模式
-    usageList: { 1: [], 2: [] }, // 药品使用方式
+    usageList: {}, // 药品使用方式
     frequencyList: [], // 药品使用频率
     localPayWay: [], // 线下支付方式
     unreadCount: 0,
@@ -54,9 +53,6 @@ export default {
     setUserName (state, name) {
       state.userName = name
     },
-    setRole (state, role) {
-      state.role = role
-    },
     setAccess (state, access) {
       state.access = access
     },
@@ -67,8 +63,8 @@ export default {
     setHasGetInfo (state, status) {
       state.hasGetInfo = status
     },
-    setStoreInfo (state, storeInfo) {
-      state.storeInfo = storeInfo
+    setClinicInfo (state, clinicInfo) {
+      state.clinicInfo = clinicInfo
     },
     setAdvanced (state, advanced) {
       state.advanced = advanced
@@ -102,17 +98,17 @@ export default {
   },
   actions: {
     // 登录
-    handleLogin ({ commit }, { userName, password }) {
+    handleLogin ({ commit }, { userName, password, clinic_id }) {
       userName = userName.trim()
       return new Promise((resolve, reject) => {
         login({
           userName,
-          password
+          password,
+          clinic_id
         }).then(res => {
           commit('setAvator', res.avatar)
           commit('setUserId', res.user_id)
           commit('setUserName', res.nickname)
-          commit('setRole', res.role)
           commit('setAccess', res.permission)
           commit('setToken', res.token)
           resolve()
@@ -140,11 +136,10 @@ export default {
           commit('setAvator', res.avatar)
           commit('setUserName', res.nickname)
           commit('setUserId', res.id)
-          commit('setRole', res.role)
           commit('setAccess', res.permission)
           commit('setMessageCount', res.unread_count)
           commit('setHasGetInfo', true)
-          commit('setStoreInfo', res.store_info)
+          commit('setClinicInfo', res.clinic_info)
           resolve(res)
         }).catch(err => {
           reject(err)
@@ -153,7 +148,7 @@ export default {
     },
     // 加载药品使用方式
     getUsageList ({ state, commit }) {
-      if (state.usageList[1].length || state.usageList[2].length) {
+      if (state.usageList[1]) {
         return Promise.resolve(state.usageList)
       }
       return new Promise((resolve, reject) => {

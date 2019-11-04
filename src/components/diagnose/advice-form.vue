@@ -1,7 +1,7 @@
 <template>
   <Card shadow>
     <p slot="title">
-      {{ storeInfo.name }}
+      {{ clinicInfo.name }}
     </p>
     <a href="#" slot="extra" @click.prevent="changeAdvanced">
       <Icon type="md-refresh" :class="rotateIcon"></Icon>
@@ -45,7 +45,7 @@
         <Col span="6">
           <Row>
             <Col span="14">
-            <FormItem label="年龄" :label-width="38">
+            <FormItem label="年龄" :label-width="40">
               <Input :maxlength="3" v-model.number="formItem.patient_age_year">
                 <span slot="append">岁</span>
               </Input>
@@ -144,7 +144,7 @@
 import {
   getAllergyEnum,
   getDoctorList,
-  doctorCreateCard,
+  createDoctorCard,
   printTemplete
 } from '@/api/server'
 import NoteForm from '_c/diagnose/note-form'
@@ -158,7 +158,7 @@ export default {
     Charge
   },
   props: {
-    storeInfo: Object
+    clinicInfo: Object
   },
   data () {
     return {
@@ -264,7 +264,7 @@ export default {
           data.patient_allergies = data.patient_allergies.join(';')
           data.notes = JSON.stringify(data.notes)
           // 生成订单
-          doctorCreateCard(data).then(res => {
+          createDoctorCard(data).then(res => {
             this.endVoice(type, res.order_id, res.print_code)
             if (type === 2) {
               // 收费
@@ -284,7 +284,7 @@ export default {
         })
       } else {
         // 生成订单
-        doctorCreateCard(data).then(res => {
+        createDoctorCard(data).then(res => {
           this.endVoice(type, res.order_id, res.print_code)
           this.$emit('on-success', res)
         }).catch(err => {
@@ -335,12 +335,8 @@ export default {
     },
     loadData () {
       if (!this.advanced) return
-      // 当前登录人是否医生
-      this.$store.state.user.role.forEach(element => {
-        if (element === 3) {
-          this.formItem.doctor_id = this.$store.state.user.userId
-        }
-      })
+      // 当前登录人设为就诊医生
+      this.formItem.doctor_id = this.$store.state.user.userId
       // 获取过敏史
       if (!this.allergy.length) {
         getAllergyEnum().then(res => {
@@ -353,6 +349,19 @@ export default {
       if (!this.doctors.length) {
         getDoctorList().then(res => {
           this.doctors = res
+          // 将当前登录人加入到医师列表
+          let has = false
+          this.doctors.forEach(n => {
+            if (n.id === this.$store.state.user.userId) {
+              has = true
+            }
+          })
+          if (!has) {
+            this.doctors.push({
+              id: this.$store.state.user.userId,
+              nickname: this.$store.state.user.userName
+            })
+          }
         }).catch(err => {
           this.$Message.error(err)
         })

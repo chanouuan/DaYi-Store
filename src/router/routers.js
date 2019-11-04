@@ -125,7 +125,7 @@ export default [
           icon: 'ios-archive',
           title: '库存管理'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/stock/stock.vue')
       },
       {
         path: 'stock_pull_page',
@@ -134,7 +134,7 @@ export default [
           icon: 'ios-arrow-round-down',
           title: '入存管理'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/stock/stock_pull.vue')
       },
       {
         path: 'stock_push_page',
@@ -143,7 +143,7 @@ export default [
           icon: 'ios-arrow-round-up',
           title: '出存管理'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/stock/stock_push.vue')
       }
     ]
   },
@@ -175,13 +175,13 @@ export default [
         component: () => import('@/view/clinic/add_treatment.vue')
       },
       {
-        path: 'clinic_employee_page',
-        name: 'clinic_employee_page',
+        path: 'add_employee_page',
+        name: 'add_employee_page',
         meta: {
           icon: 'ios-people',
           title: '员工管理'
         },
-        component: () => import('@/view/join-page.vue')
+        component: () => import('@/view/clinic/add_employee.vue')
       },
       {
         path: 'clinic_import_page',
@@ -211,26 +211,6 @@ export default [
           title: '消息中心'
         },
         component: () => import('@/view/single-page/message/index.vue')
-      }
-    ]
-  },
-  {
-    path: '/error_logger',
-    name: 'error_logger',
-    meta: {
-      hideInBread: true,
-      hideInMenu: true
-    },
-    component: Main,
-    children: [
-      {
-        path: 'error_logger_page',
-        name: 'error_logger_page',
-        meta: {
-          icon: 'ios-bug',
-          title: '错误收集'
-        },
-        component: () => import('@/view/single-page/error-logger.vue')
       }
     ]
   },

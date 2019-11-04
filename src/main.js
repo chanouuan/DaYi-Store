@@ -4,7 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
-import iView from 'iview'
+import iView from 'view-design'
 import config from '@/config'
 import './index.less'
 import '@/assets/icons/iconfont.css'
@@ -14,7 +14,7 @@ import '@/assets/icons/iconfont.css'
 if (process.env.NODE_ENV !== 'production') require('@/mock')
 
 Vue.use(iView, {
-  size: 'large'
+  size: 'default'
 })
 
 /**

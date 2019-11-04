@@ -99,16 +99,16 @@ export default {
         return searchPatient(value)
       }
       if (this._apiname === 'searchWestDrug') {
-        return searchDrug(this.$store.state.user.storeInfo.id, 1, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 1, value)
       }
       if (this._apiname === 'searchChineseDrug') {
-        return searchDrug(this.$store.state.user.storeInfo.id, 3, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 3, value)
       }
       if (this._apiname === 'searchMaterial') {
-        return searchDrug(this.$store.state.user.storeInfo.id, 4, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 4, value)
       }
       if (this._apiname === 'searchTreatmentSheet') {
-        return searchTreatmentSheet(this.$store.state.user.storeInfo.id, value)
+        return searchTreatmentSheet(this.$store.state.user.clinicInfo.id, value)
       }
       if (this._apiname === 'searchWestDrugDict') {
         return searchDrugDict(1, value)

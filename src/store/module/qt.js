@@ -1,6 +1,6 @@
 import config from '@/config'
 import qwebchannel from '@/libs/qwebchannel'
-import { Notice } from 'iview'
+import { Notice } from 'view-design'
 
 export default {
   state: {
@@ -80,12 +80,12 @@ export default {
     sendLoginCmd ({ state, rootState }) {
       // 登录
       if (!state.qtRunning) return
-      const { user: { storeInfo } } = rootState
+      const { user: { clinicInfo } } = rootState
       let text = {
         code: 100,
         data: {
-          'hospital_id': storeInfo.id,
-          'hospital_name': storeInfo.name
+          'hospital_id': clinicInfo.id,
+          'hospital_name': clinicInfo.name
         }
       }
       state.qtDialog.receiveText(JSON.stringify(text))

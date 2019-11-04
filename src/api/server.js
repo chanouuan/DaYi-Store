@@ -46,9 +46,17 @@ export const getDosageEnum = () => {
 }
 
 // 获取药品单位
-export const getUnitEnum = () => {
+export const getDrugUnitEnum = () => {
   return axios.request({
-    url: 'serverClinic/getUnitEnum',
+    url: 'serverClinic/getDrugUnitEnum',
+    method: 'get'
+  })
+}
+
+// 获取诊疗项目单位
+export const getTreatmentUnitEnum = () => {
+  return axios.request({
+    url: 'serverClinic/getTreatmentUnitEnum',
     method: 'get'
   })
 }
@@ -62,10 +70,10 @@ export const getNoteFrequencyEnum = () => {
 }
 
 // 搜索药品
-export const searchDrug = (store_id, drug_type, name) => {
+export const searchDrug = (clinic_id, drug_type, name) => {
   return axios.request({
     url: 'serverClinic/searchDrug',
-    data: { store_id, drug_type, name },
+    data: { clinic_id, drug_type, name },
     method: 'post'
   })
 }
@@ -80,19 +88,19 @@ export const searchDrugDict = (drug_type, name) => {
 }
 
 // 搜索诊疗项目
-export const searchTreatmentSheet = (store_id, name) => {
+export const searchTreatmentSheet = (clinic_id, name) => {
   return axios.request({
     url: 'serverClinic/searchTreatmentSheet',
-    data: { store_id, name },
+    data: { clinic_id, name },
     method: 'post'
   })
 }
 
 // 医生接诊
-export const doctorCreateCard = (data) => {
+export const createDoctorCard = (data) => {
   data.token = getToken()
   return axios.request({
-    url: 'serverClinic/doctorCreateCard',
+    url: 'serverClinic/createDoctorCard',
     data: data,
     method: 'post'
   })
@@ -229,5 +237,61 @@ export const getTreatmentInfo = (id) => {
     url: 'serverClinic/getTreatmentInfo',
     params: { id },
     method: 'get'
+  })
+}
+
+// 获取员工列表
+export const getEmployeeList = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getEmployeeList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 添加员工
+export const saveEmployee = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/saveEmployee',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取员工信息
+export const getEmployeeInfo = (id) => {
+  return axios.request({
+    url: 'serverClinic/getEmployeeInfo',
+    params: { id },
+    method: 'get'
+  })
+}
+
+// 获取员工职位
+export const getEmployeeTitle = () => {
+  return axios.request({
+    url: 'serverClinic/getEmployeeTitle',
+    method: 'get'
+  })
+}
+
+// 获取员工角色
+export const getEmployeeRole = () => {
+  return axios.request({
+    url: 'serverClinic/getEmployeeRole',
+    data: { token: getToken() },
+    method: 'post'
+  })
+}
+
+// 库存列表
+export const getStockList = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getStockList',
+    data: data,
+    method: 'post'
   })
 }

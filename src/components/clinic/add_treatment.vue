@@ -1,6 +1,6 @@
 <template>
   <Card shadow v-show="model_value">
-    <Form ref="formRef" :rules="ruleForm" :model="form" :label-width="80">
+    <Form ref="formRef" :rules="ruleForm" :model="form" :label-width="100">
       <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
         项目
       </p>
@@ -24,8 +24,8 @@
       <Row>
         <Col span="8">
           <FormItem label="项目单位" prop="unit">
-            <Select v-model="form.unit">
-              <Option value="次">次</Option>
+            <Select v-model="form.unit" transfer filterable>
+              <Option v-for="(item, index) in unitList" :value="item" :key="index">{{ item }}</Option>
             </Select>
           </FormItem>
         </Col>
@@ -60,16 +60,16 @@
         <Col span="6">
           <FormItem label="特检项目">
             <RadioGroup v-model="form.is_special">
-              <Radio label="">否</Radio>
-              <Radio label="1">是</Radio>
+              <Radio label="" border>否</Radio>
+              <Radio label="1" border>是</Radio>
             </RadioGroup>
           </FormItem>
         </Col>
         <Col span="6" v-show="id">
           <FormItem label="启用状态">
             <RadioGroup v-model="form.status">
-              <Radio label="">停用</Radio>
-              <Radio label="1">启用</Radio>
+              <Radio label="" border>停用</Radio>
+              <Radio label="1" border>启用</Radio>
             </RadioGroup>
           </FormItem>
         </Col>
@@ -84,9 +84,11 @@
 
 <script>
 import {
+  getTreatmentUnitEnum,
   saveTreatment,
   getTreatmentInfo
 } from '@/api/server'
+import { wordToPy, wordToWb } from '@/libs/wordtopy'
 export default {
   name: 'add-treatment',
   model: {
@@ -118,6 +120,8 @@ export default {
     }
     return {
       submit: false,
+      t: null,
+      unitList: [],
       form: {
         name: '',
         ident: '',
@@ -138,7 +142,7 @@ export default {
           { required: true, message: '编号不能为空', trigger: 'blur' }
         ],
         unit: [
-          { validate: validateRequire, required: true, message: '单位不能为空', trigger: 'change' }
+          { validator: validateRequire, required: true, message: '单位不能为空', trigger: 'change' }
         ],
         price: [
           { validator: validatePrice, required: true, message: '单价必须大于0', trigger: 'blur' }
@@ -159,6 +163,15 @@ export default {
         this.loadData()
       } else {
         this.clearData()
+      }
+    },
+    'form.name': {
+      handler () {
+        clearTimeout(this.t)
+        this.t = setTimeout(() => {
+          this.form.py_code = wordToPy(this.form.name)
+          this.form.wb_code = wordToWb(this.form.name)
+        }, 500)
       }
     }
   },
@@ -233,6 +246,14 @@ export default {
         getTreatmentInfo(this.id).then(res => {
           this.submit = false
           this.form = Object.assign(this.form, res)
+        }).catch(err => {
+          this.$Message.error(err)
+        })
+      }
+      // 获取项目单位
+      if (!this.unitList.length) {
+        getTreatmentUnitEnum().then(res => {
+          this.unitList = res
         }).catch(err => {
           this.$Message.error(err)
         })

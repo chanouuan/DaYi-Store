@@ -1,7 +1,7 @@
 <template>
   <Card shadow>
     <p slot="title">
-      {{ storeInfo.name }}
+      {{ clinicInfo.name }}
     </p>
     <Form :model="formItem" :label-width="60">
       <Row>
@@ -21,7 +21,7 @@
         <Col span="6">
           <Row>
             <Col span="14">
-            <FormItem label="年龄" :label-width="38">
+            <FormItem label="年龄" :label-width="40">
               <Input :maxlength="3" v-model.number="formItem.patient_age_year">
                 <span slot="append">岁</span>
               </Input>
@@ -198,7 +198,7 @@ export default {
     }
   },
   created () {
-    this.storeInfo = this.$store.state.user.storeInfo
+    this.clinicInfo = this.$store.state.user.clinicInfo
   }
 }
 </script>

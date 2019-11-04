@@ -1,7 +1,7 @@
 <template>
   <Card shadow>
     <p slot="title">
-      {{ storeInfo.name }}
+      {{ clinicInfo.name }}
     </p>
     <div style="text-align:center">
       <Alert type="success" show-icon>
@@ -16,7 +16,7 @@
 export default {
   name: 'complete-card',
   props: {
-    storeInfo: Object
+    clinicInfo: Object
   },
   data () {
     return {

@@ -23,7 +23,7 @@
           <Col span="6">
             <Row>
               <Col span="14">
-              <FormItem label="年龄" :label-width="38">
+              <FormItem label="年龄" :label-width="40">
                 <Input :maxlength="3" v-model.number="formItem.patient_age_year">
                   <span slot="append">岁</span>
                 </Input>
@@ -262,7 +262,7 @@ export default {
         this.formItem.note_dose = res.note_dose
         this.formItem.note_side = res.note_side
         this.formItem.advice = res.advice
-        this.formItem.notes = res.notes
+        this.formItem.notes = res.notes || []
         this.$refs.noteForm.note[1].count = 0
         this.$refs.noteForm.note[2].count = 0
         this.$refs.noteForm.note[3].count = 0
