@@ -1,116 +1,115 @@
 <template>
-  <Modal footer-hide :value="model_value" :width="80" :styles="{top:'16px'}" :mask-closable="false" @on-visible-change="modalChange">
+  <Modal footer-hide :value="model_value" :width="90" :styles="{top:'16px'}" :mask-closable="false" @on-visible-change="modalChange">
     <p slot="header">
       编辑信息
     </p>
-    <Card shadow>
-      <!-- 添加患者信息 -->
-      <Form ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
-        <Row>
-          <Col span="6">
-            <FormItem label="姓名" prop="patient_name">
-              <element-auto-complete v-model="formItem.patient_name" @on-select="selectPatientName" _placeholder="请填写患者姓名" _apiname="searchPatient"></element-auto-complete>
+    <!-- 添加患者信息 -->
+    <Form ref="cardForm" :rules="ruleCardForm" :model="formItem" :label-width="60">
+      <Row>
+        <Col span="6">
+          <FormItem label="姓名" prop="patient_name">
+            <element-auto-complete v-model="formItem.patient_name" @on-select="selectPatientName" _placeholder="请填写患者姓名" _apiname="searchPatient"></element-auto-complete>
+          </FormItem>
+        </Col>
+        <Col span="6">
+          <FormItem label="性别">
+            <RadioGroup v-model="formItem.patient_gender">
+              <Radio label="1">男</Radio>
+              <Radio label="2">女</Radio>
+            </RadioGroup>
+          </FormItem>
+        </Col>
+        <Col span="6">
+          <Row>
+            <Col span="14">
+            <FormItem label="年龄" :label-width="40">
+              <Input :maxlength="3" v-model.number="formItem.patient_age_year">
+                <span slot="append">岁</span>
+              </Input>
             </FormItem>
-          </Col>
-          <Col span="6">
-            <FormItem label="性别">
-              <RadioGroup v-model="formItem.patient_gender">
-                <Radio label="1">男</Radio>
-                <Radio label="2">女</Radio>
-              </RadioGroup>
+            </Col>
+            <Col span="10">
+            <FormItem label="" :label-width="5">
+              <Input :maxlength="2" v-model.number="formItem.patient_age_month">
+                <span slot="append">月</span>
+              </Input>
             </FormItem>
-          </Col>
-          <Col span="6">
-            <Row>
-              <Col span="14">
-              <FormItem label="年龄" :label-width="40">
-                <Input :maxlength="3" v-model.number="formItem.patient_age_year">
-                  <span slot="append">岁</span>
-                </Input>
-              </FormItem>
-              </Col>
-              <Col span="10">
-              <FormItem label="" :label-width="5">
-                <Input :maxlength="2" v-model.number="formItem.patient_age_month">
-                  <span slot="append">月</span>
-                </Input>
-              </FormItem>
-              </Col>
-            </Row>
-          </Col>
-          <Col span="6">
-            <FormItem label="手机">
-              <Input :maxlength="11" type="tel" v-model="formItem.patient_tel" placeholder="请填写手机号码"/>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row>
-          <Col span="15">
-            <FormItem label="主诉">
-              <Input :maxlength="200" v-model="formItem.patient_complaint" placeholder="请填写主诉症状"/>
-            </FormItem>
-          </Col>
-          <Col span="9">
-            <FormItem label="过敏史">
-              <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple>
-                <Option v-for="(item, index) in allergy" :value="item" :key="index">{{ item }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Row>
-          <Col span="15">
-            <FormItem label="诊断">
-              <Input :maxlength="200" v-model="formItem.patient_diagnosis" placeholder="请填写诊断"/>
-            </FormItem>
-          </Col>
-          <Col span="9">
-            <FormItem label="医师">
-              <Select v-model="formItem.doctor_id" placeholder="请填写医师" filterable>
-                <Option v-for="item in doctors" :value="item.id" :key="item.id">{{ item.nickname }}</Option>
-              </Select>
-            </FormItem>
-          </Col>
-        </Row>
-        <Divider orientation="center" dashed><Icon type="ios-create-outline"/> 处方笺</Divider>
-        <!-- 处方笺列表 -->
-        <template v-for="(note, index) in formItem.notes">
-        <Row class="note-row" :key="index" v-if="note.category==1">
-          <Col span="1">{{ index+1 }}.</Col>
-          <Col span="4">{{ note.name }}</Col>
-          <Col span="3">{{ note.package_spec }}</Col>
-          <Col span="3">{{ note.single_amount+note.dosage_unit }}</Col>
-          <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-          <Col span="3">{{ note.usages_name }}</Col>
-          <Col span="3">{{ note.frequency_name }}</Col>
-          <Col span="3">{{ note.drug_days }}天</Col>
-          <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
-        </Row>
-        <Row class="note-row" :key="index" v-else-if="note.category==2">
-          <Col span="1">{{ index+1 }}.</Col>
-          <Col span="4">{{ note.name }}</Col>
-          <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-          <Col span="15">{{ note.usages_name }}</Col>
-          <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
-        </Row>
-        <Row class="note-row" :key="index" v-else-if="note.category==3">
-          <Col span="1">{{ index+1 }}.</Col>
-          <Col span="4">{{ note.name }}</Col>
-          <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-          <Col span="3">￥{{ note.price }}</Col>
-          <Col span="12">{{ note.remark }}&nbsp;</Col>
-          <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
-        </Row>
-        </template>
-        <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
-        <FormItem style="text-align: right">
-          <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(2)">保存并收费</Button>
-          <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(1)">保存</Button>
-        </FormItem>
-      </Form>
-      <!-- 添加处方笺 -->
-      <note-form ref="noteForm" @on-note="addNote"></note-form>
-    </Card>
+            </Col>
+          </Row>
+        </Col>
+        <Col span="6">
+          <FormItem label="手机">
+            <Input :maxlength="11" type="tel" v-model="formItem.patient_tel" placeholder="请填写手机号码"/>
+          </FormItem>
+        </Col>
+      </Row>
+      <Row>
+        <Col span="15">
+          <FormItem label="主诉">
+            <Input :maxlength="200" v-model="formItem.patient_complaint" placeholder="请填写主诉症状"/>
+          </FormItem>
+        </Col>
+        <Col span="9">
+          <FormItem label="过敏史">
+            <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple>
+              <Option v-for="(item, index) in allergy" :value="item" :key="index">{{ item }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+      </Row>
+      <Row>
+        <Col span="15">
+          <FormItem label="诊断">
+            <Input :maxlength="200" v-model="formItem.patient_diagnosis" placeholder="请填写诊断"/>
+          </FormItem>
+        </Col>
+        <Col span="9">
+          <FormItem label="医师">
+            <Select v-model="formItem.doctor_id" placeholder="请填写医师" filterable>
+              <Option v-for="item in doctors" :value="item.id" :key="item.id">{{ item.nickname }}</Option>
+            </Select>
+          </FormItem>
+        </Col>
+      </Row>
+      <Divider orientation="center" dashed><Icon type="ios-create-outline"/> 处方笺</Divider>
+      <!-- 处方笺列表 -->
+      <template v-for="(note, index) in formItem.notes">
+      <Row class="note-row" :key="index" v-if="note.category==1">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.package_spec }}</Col>
+        <Col span="3">{{ note.single_amount+note.dosage_unit }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="3">{{ note.usages_name }}</Col>
+        <Col span="3">{{ note.frequency_name }}</Col>
+        <Col span="3">{{ note.drug_days }}天</Col>
+        <Col span="1"><Button style="color:#2d8cf0;border-color:#2d8cf0" size="small" @click="noteRemove(index)">删除</Button></Col>
+      </Row>
+      <Row class="note-row" :key="index" v-else-if="note.category==2">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="15">{{ note.usages_name }}</Col>
+        <Col span="1"><Button style="color:#2d8cf0;border-color:#2d8cf0" size="small" @click="noteRemove(index)">删除</Button></Col>
+      </Row>
+      <Row class="note-row" :key="index" v-else-if="note.category==3">
+        <Col span="1">{{ index+1 }}.</Col>
+        <Col span="4">{{ note.name }}</Col>
+        <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
+        <Col span="3">￥{{ note.price }}</Col>
+        <Col span="12">{{ note.remark }}&nbsp;</Col>
+        <Col span="1"><Button style="color:#2d8cf0;border-color:#2d8cf0" size="small" @click="noteRemove(index)">删除</Button></Col>
+      </Row>
+      </template>
+      <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
+      <FormItem style="text-align: right">
+        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(2)">保存并收费</Button>
+        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(1)">保存</Button>
+      </FormItem>
+    </Form>
+    <!-- 添加处方笺 -->
+    <note-form ref="noteForm" @on-note="addNote"></note-form>
+    <Spin fix v-if="loading"></Spin>
   </Modal>
 </template>
 
@@ -139,6 +138,7 @@ export default {
   },
   data () {
     return {
+      loading: false,
       submit: false,
       allergy: [],
       doctors: [],
@@ -247,9 +247,9 @@ export default {
     },
     detail () {
       // 获取详情
-      this.submit = true
+      this.loading = true
       getDoctorOrderDetail({ order_id: this.order_id }).then(res => {
-        this.submit = false
+        this.loading = false
         this.formItem.patient_name = res.patient_name || ''
         this.formItem.patient_tel = res.patient_tel
         this.formItem.patient_gender = (res.patient_gender ? res.patient_gender : '1') + ''
@@ -270,7 +270,6 @@ export default {
           this.$refs.noteForm.note[n.category].count++
         })
       }).catch(err => {
-        this.submit = false
         this.$Message.error(err)
       })
     },
@@ -285,7 +284,7 @@ export default {
       }
       // 获取医生
       if (!this.doctors.length) {
-        getDoctorList().then(res => {
+        getDoctorList(true).then(res => {
           this.doctors = res
         }).catch(err => {
           this.$Message.error(err)

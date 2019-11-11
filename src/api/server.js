@@ -19,11 +19,12 @@ export const getAllergyEnum = () => {
 }
 
 // 获取医生列表
-export const getDoctorList = () => {
+export const getDoctorList = (all) => {
   return axios.request({
     url: 'serverClinic/getDoctorList',
     data: {
-      token: getToken()
+      token: getToken(),
+      all: all || ''
     },
     method: 'post'
   })
@@ -70,10 +71,10 @@ export const getNoteFrequencyEnum = () => {
 }
 
 // 搜索药品
-export const searchDrug = (clinic_id, drug_type, name) => {
+export const searchDrug = (clinic_id, drug_type, name, is_procure) => {
   return axios.request({
     url: 'serverClinic/searchDrug',
-    data: { clinic_id, drug_type, name },
+    data: { clinic_id, drug_type, name, is_procure },
     method: 'post'
   })
 }
@@ -138,6 +139,7 @@ export const getDoctorOrderList = (data) => {
 
 // 获取会诊详情
 export const getDoctorOrderDetail = (data) => {
+  data.token = getToken()
   return axios.request({
     url: 'serverClinic/getDoctorOrderDetail',
     data: data,
@@ -165,6 +167,7 @@ export const localCharge = (data) => {
 
 // 获取打印模板
 export const printTemplete = (data) => {
+  data.token = getToken()
   return axios.request({
     url: 'serverClinic/printTemplete',
     data: data,
@@ -291,6 +294,100 @@ export const getStockList = (data) => {
   data.token = getToken()
   return axios.request({
     url: 'serverClinic/getStockList',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取出入库方式
+export const getStockWayEnum = () => {
+  return axios.request({
+    url: 'serverClinic/getStockWayEnum',
+    method: 'get'
+  })
+}
+
+// 获取出入库列表
+export const getStockPullOrPush = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getStockPullOrPush',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取进销存详情
+export const getStockSale = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/getStockSale',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 获取批次详情
+export const batchDetail = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/batchDetail',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 新增出入库
+export const addStock = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/addStock',
+    data: data,
+    method: 'post'
+  })
+}
+
+// 确认出入库
+export const confirmStock = (stock_id) => {
+  return axios.request({
+    url: 'serverClinic/confirmStock',
+    data: {
+      token: getToken(),
+      stock_id: stock_id
+    },
+    method: 'post'
+  })
+}
+
+// 删除出入库
+export const delStock = (stock_id) => {
+  return axios.request({
+    url: 'serverClinic/delStock',
+    data: {
+      token: getToken(),
+      stock_id: stock_id
+    },
+    method: 'post'
+  })
+}
+
+// 出入库详情
+export const stockDetail = (stock_id) => {
+  return axios.request({
+    url: 'serverClinic/stockDetail',
+    data: {
+      token: getToken(),
+      stock_id: stock_id
+    },
+    method: 'post'
+  })
+}
+
+// 编辑出入库
+export const editStock = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/editStock',
     data: data,
     method: 'post'
   })

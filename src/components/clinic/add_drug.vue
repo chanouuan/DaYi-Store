@@ -11,7 +11,7 @@
             <Row v-show="!id">
               <Col span="8">
                 <FormItem label="药品查询">
-                  <element-auto-complete v-model="westForm.drug_name" @on-select="selectWestDrugName" _placeholder="国药准字/药品名称/拼音码/五笔码/条形码" _apiname="searchWestDrugDict"></element-auto-complete>
+                  <element-auto-complete _icon="ios-search" @on-select="selectWestDrugName" _placeholder="国药准字/药品名称/拼音码/五笔码/条形码" _apiname="searchWestDrugDict"></element-auto-complete>
                 </FormItem>
               </Col>
             </Row>
@@ -137,7 +137,7 @@
               </Col>
             </Row>
             <Row>
-              <Col span="4">
+              <Col span="5">
                 <FormItem label="零售价" style="margin-bottom: 2px" prop="retail_price">
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
@@ -197,7 +197,7 @@
             <Row v-show="!id">
               <Col span="8">
                 <FormItem label="药品查询">
-                  <element-auto-complete v-model="westForm.drug_name" @on-select="selectWestDrugName" _placeholder="药品名称/拼音码/五笔码" _apiname="searchChineseDrugDict"></element-auto-complete>
+                  <element-auto-complete _icon="ios-search" @on-select="selectWestDrugName" _placeholder="药品名称/拼音码/五笔码" _apiname="searchChineseDrugDict"></element-auto-complete>
                 </FormItem>
               </Col>
             </Row>
@@ -255,14 +255,14 @@
               处方信息
             </p>
             <Row>
-              <Col span="4">
+              <Col span="5">
                 <FormItem label="零售单位" prop="dispense_unit" style="margin-bottom: 2px">
                   <Select v-model="westForm.dispense_unit" placeholder="零售单位" transfer filterable>
                     <Option v-for="(item, index) in unitList[4]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
-              <Col span="4">
+              <Col span="5">
                 <FormItem label="零售价" prop="retail_price" style="margin-bottom: 2px">
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
@@ -344,14 +344,14 @@
               使用信息
             </p>
             <Row>
-              <Col span="4">
+              <Col span="5">
                 <FormItem label="零售单位" prop="dispense_unit" style="margin-bottom: 2px">
                   <Select v-model="westForm.dispense_unit" placeholder="零售单位" transfer filterable>
                     <Option v-for="(item, index) in unitList[4]" :value="item" :key="index">{{ item }}</Option>
                   </Select>
                 </FormItem>
               </Col>
-              <Col span="4">
+              <Col span="5">
                 <FormItem label="零售价" prop="retail_price" style="margin-bottom: 2px">
                   <Input :maxlength="5" placeholder="零售价（元）" v-model.number="westForm.retail_price"></Input>
                 </FormItem>
@@ -373,6 +373,7 @@
         </Form>
       </TabPane>
     </Tabs>
+    <Spin fix v-if="loading"></Spin>
   </Card>
 </template>
 
@@ -425,6 +426,7 @@ export default {
       }
     }
     return {
+      loading: false,
       submit: false,
       t: null,
       dosageList: {},
@@ -433,7 +435,6 @@ export default {
       frequencyList: [],
       selectTabName: 'west',
       westForm: {
-        drug_name: '',
         name: '',
         package_spec: '',
         dosage_type: '',
@@ -471,10 +472,10 @@ export default {
           { validator: validateRequire, required: true, message: '剂型不能为空', trigger: 'change' }
         ],
         unit: [
-          { validator: validateUnit, required: true, message: '请填写完整的规格', trigger: 'blur' }
+          { validator: validateUnit, required: true, message: '请填写规格', trigger: 'blur' }
         ],
         dispense_unit: [
-          { validator: validateRequire, required: true, message: '库存单位不能为空', trigger: 'change' }
+          { validator: validateRequire, required: true, message: '单位不能为空', trigger: 'change' }
         ],
         retail_price: [
           { validator: validatePrice, required: true, message: '零售价必须大于0', trigger: 'blur' }
@@ -573,9 +574,9 @@ export default {
     loadData () {
       // 加载药品信息
       if (this.id) {
-        this.submit = true
+        this.loading = true
         getDrugInfo(this.id).then(res => {
-          this.submit = false
+          this.loading = false
           this.westForm = Object.assign(this.westForm, res)
           if (res.drug_type === '4') this.selectTabName = 'material'
           else if (res.drug_type === '3') this.selectTabName = 'chinese'

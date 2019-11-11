@@ -166,6 +166,7 @@ export default {
         },
         {
           title: '时间',
+          tooltip: true,
           key: 'create_time'
         },
         {
@@ -321,7 +322,7 @@ export default {
   created () {
     // 获取医生
     if (!this.doctors.length) {
-      getDoctorList().then(res => {
+      getDoctorList(true).then(res => {
         this.doctors = res
       }).catch(err => {
         this.$Message.error(err)

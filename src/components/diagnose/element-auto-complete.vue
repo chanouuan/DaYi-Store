@@ -14,7 +14,7 @@
       </Row>
       <Option v-for="(row, index) in rows" :index="index" :value="optionValue(row)" :key="row.id">
         <Row class-name="col-th">
-          <Col class-name="col-td" :span="24/columns.length" v-for="column in columns" :key="row.id+'-'+column.key">{{ row[column.key] ? row[column.key] : '&nbsp;' }}</Col>
+          <Col class-name="col-td" :span="24/columns.length" v-for="column in columns" :key="row.id+'-'+column.key" :title="row[column.key]">{{ row[column.key] ? row[column.key] : '&nbsp;' }}</Col>
         </Row>
       </Option>
     </div>
@@ -63,6 +63,10 @@ export default {
       this.inputValue = val
     },
     inputValue (val) {
+      if (!val) {
+        this.columns = []
+        this.rows = []
+      }
       this.$emit('child-change', val) // 通知父组件值改变
     }
   },
@@ -99,13 +103,19 @@ export default {
         return searchPatient(value)
       }
       if (this._apiname === 'searchWestDrug') {
-        return searchDrug(this.$store.state.user.clinicInfo.id, 1, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 1, value, 0)
       }
       if (this._apiname === 'searchChineseDrug') {
-        return searchDrug(this.$store.state.user.clinicInfo.id, 3, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 3, value, 0)
       }
       if (this._apiname === 'searchMaterial') {
-        return searchDrug(this.$store.state.user.clinicInfo.id, 4, value)
+        return searchDrug(this.$store.state.user.clinicInfo.id, 4, value, 0)
+      }
+      if (this._apiname === 'searchDrug') {
+        return searchDrug(this.$store.state.user.clinicInfo.id, 0, value, 0)
+      }
+      if (this._apiname === 'searchProcureDrug') {
+        return searchDrug(this.$store.state.user.clinicInfo.id, 0, value, 1)
       }
       if (this._apiname === 'searchTreatmentSheet') {
         return searchTreatmentSheet(this.$store.state.user.clinicInfo.id, value)

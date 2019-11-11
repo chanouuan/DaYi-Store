@@ -1,21 +1,15 @@
 <template>
   <div>
   <!-- 列表 -->
-  <Card shadow v-show="!addPage">
+  <Card shadow>
     <Row>
       <Col span="3">
-        <Button @click="add" type="primary" icon="ios-add">添加</Button>
+        <Button @click="exportCsv" type="primary" icon="ios-download-outline">导出</Button>
       </Col>
       <Col span="21">
         <Form inline>
           <FormItem>
-            <Input style="width: 150px" v-model="search.name" :maxlength="20" type="text" placeholder="药品名称" clearable/>
-          </FormItem>
-          <FormItem>
-            <Select style="width: 150px" v-model="search.status" placeholder="药品状态" clearable>
-              <Option value="0">停用</Option>
-              <Option value="1">启用</Option>
-            </Select>
+            <Input style="width: 150px" v-model="search.name" :maxlength="20" type="text" placeholder="名称/编码/拼音码" clearable/>
           </FormItem>
           <FormItem>
             <Select style="width: 150px" v-model="search.drug_type" placeholder="药品类型" clearable>
@@ -31,38 +25,42 @@
         </Form>
       </Col>
     </Row>
-    <Table :columns="columns" :data="rows" :loading="loading" border></Table>
+    <Table ref="table" :columns="columns" :data="rows" :loading="loading" border></Table>
     <div style="margin-top: 16px;overflow: hidden;">
       <div style="float: right;">
         <Page :page-size="pageSize" :current.sync="current" :total="totalCount" @on-change="changePage"/>
       </div>
     </div>
   </Card>
-  <!-- 新增 -->
-  <add-drug v-model="addPage" :id="selectId" @on-complete="addComplete"></add-drug>
+  <!-- 进销存详情 -->
+  <SaleList v-model="saleModal" :drug_id="selectId"></SaleList>
+  <!-- 批次详情 -->
+  <BatchList v-model="batchModal" :drug_id="selectId"></BatchList>
   </div>
 </template>
 
 <script>
 import {
-  getDrugList
+  getStockList
 } from '@/api/server'
-import AddDrug from '_c/clinic/add_drug'
+import SaleList from '_c/stock/sale_list'
+import BatchList from '_c/stock/batch_list'
 export default {
   components: {
-    AddDrug
+    SaleList,
+    BatchList
   },
   data () {
     return {
       loading: false,
-      addPage: false,
+      saleModal: false,
+      batchModal: false,
       selectId: 0,
       totalCount: 0,
       pageSize: 5,
       current: 1,
       search: {
         name: '',
-        status: '',
         drug_type: ''
       },
       columns: [
@@ -74,13 +72,6 @@ export default {
         {
           title: '类型',
           key: 'type_name'
-        },
-        {
-          title: '库存',
-          key: 'amount',
-          render: (h, params) => {
-            return h('span', params.row.amount + params.row.dispense_unit)
-          }
         },
         {
           title: '规格',
@@ -96,40 +87,55 @@ export default {
           key: 'retail_price'
         },
         {
-          title: '零售单位',
-          key: 'dispense_unit'
+          title: '进货价',
+          key: 'retail_price'
         },
         {
-          title: '状态',
-          key: 'status',
+          title: '库存',
+          key: 'amount',
           render: (h, params) => {
-            if (params.row.status === 0) {
-              return h('span', { style: { color: '#ed4014' } }, '停用')
-            } else if (params.row.status === 1) {
-              return h('span', { style: { color: '#19be6b' } }, '启用')
-            }
+            return h('span', params.row.amount + params.row.dispense_unit)
           }
         },
         {
           title: '操作',
           key: 'action',
+          width: 200,
           align: 'center',
           render: (h, params) => {
-            return h('Button', {
-              props: {
-                type: 'default',
-                size: 'small'
-              },
-              style: {
-                color: '#2d8cf0',
-                borderColor: '#2d8cf0'
-              },
-              on: {
-                click: () => {
-                  this.edit(params.index)
+            return h('div', [
+              h('Button', {
+                props: {
+                  type: 'default',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px',
+                  color: '#2d8cf0',
+                  borderColor: '#2d8cf0'
+                },
+                on: {
+                  click: () => {
+                    this.showSale(params.index)
+                  }
                 }
-              }
-            }, '编辑')
+              }, '进销存详情'),
+              h('Button', {
+                props: {
+                  type: 'default',
+                  size: 'small'
+                },
+                style: {
+                  color: '#2d8cf0',
+                  borderColor: '#2d8cf0'
+                },
+                on: {
+                  click: () => {
+                    this.showBatch(params.index)
+                  }
+                }
+              }, '批次详情')
+            ])
           }
         }
       ],
@@ -144,7 +150,7 @@ export default {
       data = data || {}
       data = Object.assign(data, this.search)
       if (!data.page) this.current = 1
-      getDrugList(data).then(res => {
+      getStockList(data).then(res => {
         this.loading = false
         this.totalCount = res.total_count
         this.pageSize = res.page_size
@@ -162,19 +168,23 @@ export default {
       // 换页
       this.loadList({ page })
     },
-    add () {
-      // 新增
-      this.selectId = 0
-      this.addPage = true
+    exportCsv () {
+      // 导出
+      this.$refs.table.exportCsv({
+        filename: '库存列表',
+        columns: this.columns.filter((col, index) => col.key !== 'action'),
+        data: this.rows
+      })
     },
-    edit (index) {
-      // 编辑
+    showSale (index) {
+      // 进销存详情
       this.selectId = this.rows[index].id
-      this.addPage = true
+      this.saleModal = true
     },
-    addComplete () {
-      // 添加完成回调
-      this.loadList()
+    showBatch (index) {
+      // 批次详情
+      this.selectId = this.rows[index].id
+      this.batchModal = true
     }
   },
   created () {

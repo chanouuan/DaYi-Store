@@ -106,14 +106,14 @@
         <Col span="3">{{ note.usages_name }}</Col>
         <Col span="3">{{ note.frequency_name }}</Col>
         <Col span="3">{{ note.drug_days }}天</Col>
-        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+        <Col span="1"><Button size="small" style="color:#2d8cf0;border-color:#2d8cf0" @click="noteRemove(index)">删除</Button></Col>
       </Row>
       <Row class="note-row" :key="index" v-else-if="note.category==2">
         <Col span="1">{{ index+1 }}.</Col>
         <Col span="4">{{ note.name }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
         <Col span="15">{{ note.usages_name }}</Col>
-        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+        <Col span="1"><Button size="small" style="color:#2d8cf0;border-color:#2d8cf0" @click="noteRemove(index)">删除</Button></Col>
       </Row>
       <Row class="note-row" :key="index" v-else-if="note.category==3">
         <Col span="1">{{ index+1 }}.</Col>
@@ -121,7 +121,7 @@
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
         <Col span="3">￥{{ note.price }}</Col>
         <Col span="12">{{ note.remark }}&nbsp;</Col>
-        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+        <Col span="1"><Button size="small" style="color:#2d8cf0;border-color:#2d8cf0" @click="noteRemove(index)">删除</Button></Col>
       </Row>
       </template>
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
@@ -262,7 +262,19 @@ export default {
           data = Object.assign(data, this.formItem)
           data.patient_age = data.patient_age_year + data.patient_age_month / 100
           data.patient_allergies = data.patient_allergies.join(';')
-          data.notes = JSON.stringify(data.notes)
+          let notes = []
+          data.notes.forEach(n => {
+            notes.push({
+              category: n.category,
+              relation_id: n.relation_id,
+              total_amount: n.total_amount,
+              single_amount: n.single_amount,
+              usages: n.usages,
+              frequency: n.frequency,
+              drug_days: n.drug_days
+            })
+          })
+          data.notes = JSON.stringify(notes)
           // 生成订单
           createDoctorCard(data).then(res => {
             this.endVoice(type, res.order_id, res.print_code)

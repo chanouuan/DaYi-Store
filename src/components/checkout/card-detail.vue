@@ -1,9 +1,9 @@
 <template>
-  <Modal :value="model_value" :width="80" :styles="{top:'16px'}" :mask-closable="false" @on-visible-change="modalChange">
+  <Modal :value="model_value" :width="90" :styles="{top:'16px'}" :mask-closable="false" @on-visible-change="modalChange">
     <p slot="header">
       查看信息
     </p>
-    <Card v-if="formItem.enum_source===1" shadow>
+    <div v-if="formItem.enum_source===1">
       <!-- 患者信息 -->
       <Row>
         <Col span="6">
@@ -81,8 +81,8 @@
           支付方式：{{ payway }}
         </Col>
       </Row>
-    </Card>
-    <Card v-else-if="formItem.enum_source===2" shadow>
+    </div>
+    <div v-else-if="formItem.enum_source===2">
       <!-- 患者信息 -->
       <Row>
         <Col span="6">
@@ -122,12 +122,13 @@
           支付方式：{{ payway }}
         </Col>
       </Row>
-    </Card>
-    <div slot="footer">
-      <Button v-show="formItem.enum_source===1" type="default" :loading="loading" @click="printCard">打印会诊单</Button>
-      <Button type="default" :loading="loading" @click="printCharge">打印收费单</Button>
-      <Button type="primary" :loading="loading" @click="modalChange(false)">关闭</Button>
     </div>
+    <div slot="footer">
+      <Button v-show="formItem.enum_source===1" style="width:150px" type="default" :loading="loading" @click="printCard">打印会诊单</Button>
+      <Button style="width:150px" type="default" :loading="loading" @click="printCharge">打印收费单</Button>
+      <Button style="width:150px" type="primary" :loading="loading" @click="modalChange(false)">关闭</Button>
+    </div>
+    <Spin fix v-if="loading"></Spin>
   </Modal>
 </template>
 

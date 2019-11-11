@@ -165,7 +165,15 @@ export default {
       this.printStatus = type
       let data = Object.assign({}, this.formItem)
       data.patient_age = data.patient_age_year + data.patient_age_month / 100
-      data.notes = JSON.stringify(data.notes)
+      let notes = []
+      data.notes.forEach(n => {
+        notes.push({
+          category: n.category,
+          relation_id: n.relation_id,
+          total_amount: n.total_amount
+        })
+      })
+      data.notes = JSON.stringify(notes)
       // 生成订单
       buyDrug(data).then(res => {
         // 收费

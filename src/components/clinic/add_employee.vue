@@ -1,9 +1,9 @@
 <template>
   <Card shadow v-show="model_value">
+    <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
+      员工信息
+    </p>
     <Form ref="formRef" :rules="ruleForm" :model="form" :label-width="100">
-      <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
-        员工信息
-      </p>
       <Row>
         <Col span="8">
           <FormItem label="登录账号" prop="user_name">
@@ -46,7 +46,7 @@
       </Row>
       <Row>
         <Col span="8">
-          <FormItem label="职位">
+          <FormItem label="职位" prop="title">
             <Select v-model="form.title">
               <Option v-for="(item, index) in titleList" :value="item" :key="index">{{ item }}</Option>
             </Select>
@@ -66,6 +66,7 @@
         <Button type="primary" style="width: 150px;margin-left: 16px" :loading="submit" @click="save()">保存</Button>
       </div>
     </Form>
+    <Spin fix v-if="loading"></Spin>
   </Card>
 </template>
 
@@ -106,6 +107,7 @@ export default {
       }
     }
     return {
+      loading: false,
       submit: false,
       roleList: [],
       titleList: [],
@@ -131,6 +133,9 @@ export default {
         ],
         role_id: [
           { required: true, type: 'array', min: 1, message: '请选择角色', trigger: 'change' }
+        ],
+        title: [
+          { required: true, message: '请选择职位', trigger: 'change' }
         ]
       }
     }
@@ -199,9 +204,9 @@ export default {
     loadData () {
       // 加载信息
       if (this.id) {
-        this.submit = true
+        this.loading = true
         getEmployeeInfo(this.id).then(res => {
-          this.submit = false
+          this.loading = false
           this.form = Object.assign(this.form, res)
         }).catch(err => {
           this.$Message.error(err)

@@ -72,6 +72,7 @@ export default {
         },
         {
           title: '时间',
+          tooltip: true,
           key: 'create_time'
         }
       ],

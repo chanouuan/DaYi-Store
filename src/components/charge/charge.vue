@@ -239,7 +239,7 @@ export default {
         if (this.multiPayway.length !== 2) {
           return this.$Message.error('请选择支付方式')
         }
-        if (this.preMultiAmount <= 0 || this.preMultiAmount > this.actualAmount) {
+        if (this.preMultiAmount < 0 || this.preMultiAmount > this.actualAmount) {
           return this.$Message.error('请输入付款金额')
         }
         data.payway = this.multiPayway[0]

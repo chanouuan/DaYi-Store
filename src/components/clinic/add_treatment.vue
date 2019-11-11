@@ -1,9 +1,9 @@
 <template>
   <Card shadow v-show="model_value">
+    <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
+      项目
+    </p>
     <Form ref="formRef" :rules="ruleForm" :model="form" :label-width="100">
-      <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
-        项目
-      </p>
       <Row>
         <Col span="8">
           <FormItem label="项目编号" prop="ident">
@@ -79,6 +79,7 @@
         <Button type="primary" style="width: 150px;margin-left: 16px" :loading="submit" @click="save()">保存</Button>
       </div>
     </Form>
+    <Spin fix v-if="loading"></Spin>
   </Card>
 </template>
 
@@ -119,6 +120,7 @@ export default {
       }
     }
     return {
+      loading: false,
       submit: false,
       t: null,
       unitList: [],
@@ -242,9 +244,9 @@ export default {
     loadData () {
       // 加载信息
       if (this.id) {
-        this.submit = true
+        this.loading = true
         getTreatmentInfo(this.id).then(res => {
-          this.submit = false
+          this.loading = false
           this.form = Object.assign(this.form, res)
         }).catch(err => {
           this.$Message.error(err)
