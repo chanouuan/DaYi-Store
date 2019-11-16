@@ -1,7 +1,7 @@
 <template>
   <Modal :value="model_value" :width="90" :styles="{top:'16px'}" :mask-closable="false" @on-visible-change="modalChange">
     <p slot="header">
-      查看信息
+      查看详情
     </p>
     <div v-if="formItem.enum_source===1">
       <!-- 患者信息 -->
@@ -50,37 +50,23 @@
         <Col span="3">{{ note.usages_name }}</Col>
         <Col span="3">{{ note.frequency_name }}</Col>
         <Col span="3">{{ note.drug_days }}天</Col>
-        <Col span="1">￥{{ note.price }}</Col>
+        <Col span="1">￥{{ note.unit_price*note.total_amount }}</Col>
       </Row>
       <Row class="note-row" :key="index" v-else-if="note.category==2">
         <Col span="1">{{ index+1 }}.</Col>
         <Col span="4">{{ note.name }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
         <Col span="15">{{ note.usages_name }}</Col>
-        <Col span="1">￥{{ note.price }}</Col>
+        <Col span="1">￥{{ note.unit_price*note.total_amount }}</Col>
       </Row>
       <Row class="note-row" :key="index" v-else-if="note.category==3">
         <Col span="1">{{ index+1 }}.</Col>
         <Col span="4">{{ note.name }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-        <Col span="3">￥{{ note.price }}</Col>
         <Col span="12">{{ note.remark }}&nbsp;</Col>
-        <Col span="1">￥{{ note.price }}</Col>
+        <Col span="1">￥{{ note.unit_price*note.total_amount }}</Col>
       </Row>
       </template>
-      <!-- 收费 -->
-      <Divider orientation="center">费用</Divider>
-      <Row>
-        <Col span="8">
-          已收：￥{{ formItem.pay }}
-        </Col>
-        <Col span="8">
-          优惠：￥{{ formItem.discount }}
-        </Col>
-        <Col span="8">
-          支付方式：{{ payway }}
-        </Col>
-      </Row>
     </div>
     <div v-else-if="formItem.enum_source===2">
       <!-- 患者信息 -->
@@ -106,23 +92,23 @@
         <Col span="8">{{ note.name }}</Col>
         <Col span="5">{{ note.package_spec }}</Col>
         <Col span="5">{{ note.total_amount+note.dispense_unit }}</Col>
-        <Col span="5">￥{{ note.price }}</Col>
+        <Col span="5">￥{{ note.unit_price*note.total_amount }}</Col>
       </Row>
       </template>
-      <!-- 收费 -->
-      <Divider orientation="center">费用</Divider>
-      <Row>
-        <Col span="8">
-          已收：￥{{ formItem.pay }}
-        </Col>
-        <Col span="8">
-          优惠：￥{{ formItem.discount }}
-        </Col>
-        <Col span="8">
-          支付方式：{{ payway }}
-        </Col>
-      </Row>
     </div>
+    <!-- 收费 -->
+    <Divider orientation="center">费用</Divider>
+    <Row>
+      <Col span="8">
+        已收：￥{{ formItem.pay }}
+      </Col>
+      <Col span="8">
+        优惠：￥{{ formItem.discount }}
+      </Col>
+      <Col span="8">
+        支付方式：{{ payway }}
+      </Col>
+    </Row>
     <div slot="footer">
       <Button v-show="formItem.enum_source===1" style="width:150px" type="default" :loading="loading" @click="printCard">打印会诊单</Button>
       <Button style="width:150px" type="default" :loading="loading" @click="printCharge">打印收费单</Button>

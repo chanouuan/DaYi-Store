@@ -9,8 +9,10 @@
           <DatePicker style="width: 200px" v-model="search.date_range" type="daterange" :options="dateOption" placeholder="出入库日期"></DatePicker>
         </FormItem>
         <FormItem>
-          <Select style="width: 200px" v-model="search.stock_way" placeholder="出入库方式" filterable clearable>
-            <Option v-for="item in stockWay" :value="item.id" :key="item.id">{{ item.name }}</Option>
+          <Select style="width: 200px" v-model="search.stock_way" placeholder="出入库方式" clearable>
+            <OptionGroup v-for="(v, k) in stockWay" :key="k" :label="k==1?'入库':'出库'">
+              <Option v-for="vv in v" :value="vv.id" :key="vv.id">{{ vv.name }}</Option>
+            </OptionGroup>
           </Select>
         </FormItem>
         <FormItem>
@@ -146,13 +148,9 @@ export default {
     },
     loadData () {
       // 加载出入库方式
-      if (!this.stockWay.length) {
-        getStockWayEnum().then(res => {
-          for (let n in res) {
-            res[n].forEach(nn => {
-              this.stockWay.push(nn)
-            })
-          }
+      if (!this.stockWay || !this.stockWay['1']) {
+        getStockWayEnum(true).then(res => {
+          this.stockWay = res
         }).catch(err => {
           this.$Message.error(err)
         })

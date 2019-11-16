@@ -5,38 +5,38 @@
       <!-- 开西药 -->
       <Row>
         <Col span="4">
-          <FormItem label="药品" prop="name">
+          <FormItem label="药品">
             <element-auto-complete v-model="note[1].name" @on-select="selectWestBrugName" _placeholder="药品名称" _apiname="searchWestDrug"></element-auto-complete>
           </FormItem>
         </Col>
         <Col span="4">
-          <FormItem label="用法" prop="usages">
+          <FormItem label="用法">
             <Select transfer v-model="note[1].usages" placeholder="用法" filterable>
               <Option v-for="item in usageList[1]" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="4">
-          <FormItem label="单量" prop="single_amount">
+          <FormItem label="单量">
             <Input :maxlength="5" v-model.number="note[1].single_amount" placeholder="单量">
               <span slot="append">{{ note[1].dosage_unit || '-' }}</span>
             </Input>
           </FormItem>
         </Col>
         <Col span="4">
-          <FormItem label="频率" prop="frequency">
+          <FormItem label="频率">
             <Select @on-change="frequencyChange" transfer v-model="note[1].frequency" placeholder="频率" filterable>
               <Option v-for="item in frequencyList" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="3">
-          <FormItem label="天数" prop="drug_days">
+          <FormItem label="天数">
             <Input :maxlength="5" v-model.number="note[1].drug_days" placeholder="天数"/>
           </FormItem>
         </Col>
         <Col span="3">
-          <FormItem label="总量" prop="total_amount">
+          <FormItem label="总量">
             <Input :maxlength="5" v-model.number="note[1].total_amount" placeholder="总量">
               <span slot="append">{{ note[1].dispense_unit || '-' }}</span>
             </Input>
@@ -57,7 +57,7 @@
         </Col>
         <Col span="4">
           <FormItem label="用量">
-            <Input type="number" :maxlength="5" v-model="note[2].total_amount" placeholder="用量">
+            <Input :maxlength="5" v-model.number="note[2].total_amount" placeholder="用量">
               <span slot="append">{{ note[2].dispense_unit || '-' }}</span>
             </Input>
           </FormItem>
@@ -84,14 +84,14 @@
         </Col>
         <Col span="4">
           <FormItem label="数量">
-            <Input type="number" :maxlength="5" v-model="note[3].total_amount" placeholder="数量">
+            <Input :maxlength="5" v-model.number="note[3].total_amount" placeholder="数量">
               <span slot="append">{{ note[3].dispense_unit || '-' }}</span>
             </Input>
           </FormItem>
         </Col>
         <Col span="12">
           <FormItem label="备注">
-            <Input :maxlength="200" v-model="note[3].remark" placeholder="备注"/>
+            <Input :maxlength="200" v-model.trim="note[3].remark" placeholder="备注"/>
           </FormItem>
         </Col>
         <Col span="2" style="text-align: right">

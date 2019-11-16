@@ -252,7 +252,7 @@ export default {
     this.loadList()
     // 加载入库方式
     if (!this.stockWay.length) {
-      getStockWayEnum().then(res => {
+      getStockWayEnum(true).then(res => {
         this.stockWay = res[1] || []
       }).catch(err => {
         this.$Message.error(err)

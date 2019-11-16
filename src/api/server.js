@@ -165,6 +165,16 @@ export const localCharge = (data) => {
   })
 }
 
+// 线下退费
+export const localRefund = (data) => {
+  data.token = getToken()
+  return axios.request({
+    url: 'serverClinic/localRefund',
+    data: data,
+    method: 'post'
+  })
+}
+
 // 获取打印模板
 export const printTemplete = (data) => {
   data.token = getToken()
@@ -209,8 +219,8 @@ export const saveDrug = (data) => {
 export const getDrugInfo = (id) => {
   return axios.request({
     url: 'serverClinic/getDrugInfo',
-    params: { id },
-    method: 'get'
+    data: { token: getToken(), id: id },
+    method: 'post'
   })
 }
 
@@ -300,9 +310,10 @@ export const getStockList = (data) => {
 }
 
 // 获取出入库方式
-export const getStockWayEnum = () => {
+export const getStockWayEnum = (all) => {
   return axios.request({
     url: 'serverClinic/getStockWayEnum',
+    params: { all: all || '' },
     method: 'get'
   })
 }
@@ -389,6 +400,15 @@ export const editStock = (data) => {
   return axios.request({
     url: 'serverClinic/editStock',
     data: data,
+    method: 'post'
+  })
+}
+
+// 搜索批次
+export const searchBatch = (clinic_id, name) => {
+  return axios.request({
+    url: 'serverClinic/searchBatch',
+    data: { clinic_id, name },
     method: 'post'
   })
 }

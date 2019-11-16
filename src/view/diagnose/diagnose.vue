@@ -1,7 +1,7 @@
 <template>
-  <Row :gutter="16">
+  <Row :gutter="10">
     <Col span="18">
-      <Card style="margin-bottom: 16px" shadow>
+      <Card style="margin-bottom: 10px" shadow>
         <Steps :current="currentStep">
           <Step title="待就诊" content="医生待就诊"></Step>
           <Step title="就诊中" content="医生就诊中"></Step>
@@ -69,6 +69,10 @@ export default {
               h('span', params.row.patient_name)
             ])
           }
+        },
+        {
+          title: '会诊号',
+          key: 'print_code'
         },
         {
           title: '时间',

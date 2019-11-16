@@ -2,7 +2,7 @@
   <Card shadow>
     <Form inline>
       <FormItem>
-        <Input style="width: 150px" v-model="search.print_code" :maxlength="4" type="text" placeholder="凭条号" clearable/>
+        <Input style="width: 150px" v-model="search.print_code" :maxlength="4" type="text" placeholder="会诊号" clearable/>
       </FormItem>
       <FormItem>
         <Input style="width: 150px" v-model="search.patient_name" :maxlength="5" type="text" placeholder="患者姓名" clearable/>
@@ -16,7 +16,8 @@
         <Select style="width: 150px" v-model="search.status" placeholder="状态" clearable>
           <Option value="0">未收费</Option>
           <Option value="1">已收费</Option>
-          <Option value="-1">已退费</Option>
+          <Option value="2">部分退费</Option>
+          <Option value="3">全退费</Option>
         </Select>
       </FormItem>
       <FormItem>
@@ -38,6 +39,8 @@
     <CardDetail v-model="detailModal" :order_id="selectOrderId"></CardDetail>
     <!-- 收费 -->
     <Charge @on-charge-complete="chargeComplete" v-model="chargeModal" :money="chargeParam.money" :order_id="chargeParam.order_id"></Charge>
+    <!-- 退费 -->
+    <Refund @on-refund-complete="refundComplete" v-model="refundModal" :order_id="chargeParam.order_id"></Refund>
   </Card>
 </template>
 
@@ -50,18 +53,22 @@ import {
 import CardForm from '_c/checkout/card-form'
 import CardDetail from '_c/checkout/card-detail'
 import Charge from '_c/charge/charge'
+import Refund from '_c/charge/refund'
 export default {
   components: {
     CardForm,
     CardDetail,
-    Charge
+    Charge,
+    Refund
   },
   data () {
     return {
       loading: false,
       cardModal: false,
       chargeModal: false,
+      refundModal: false,
       detailModal: false,
+      printState: false,
       chargeParam: {
         money: 0,
         order_id: 0
@@ -141,7 +148,7 @@ export default {
           key: 'doctor_name'
         },
         {
-          title: '费用',
+          title: '总费用',
           key: 'pay',
           render: (h, params) => {
             return h('span', params.row.pay ? ((params.row.pay + params.row.discount) / 100) : '')
@@ -159,8 +166,10 @@ export default {
               return h('span', { style: { color: '#ed4014' } }, '未收费')
             } else if (params.row.status === 1) {
               return h('span', { style: { color: '#19be6b' } }, '已收费')
-            } else if (params.row.status === -1) {
-              return h('span', { style: { color: '#c5c8ce' } }, '已退费')
+            } else if (params.row.status === 2) {
+              return h('span', { style: { color: '#c5c8ce' } }, '部分退费')
+            } else if (params.row.status === 3) {
+              return h('span', { style: { color: '#c5c8ce' } }, '全退费')
             }
           }
         },
@@ -192,7 +201,7 @@ export default {
                 }
               }
             }, (params.row.status === 0 && params.row.enum_source === 1) ? '编辑' : '查看'))
-            if (params.row.status === 0 && params.row.patient_name) {
+            if (params.row.status === 0 && params.row.pay) {
               action.push(h('Button', {
                 props: {
                   type: 'default',
@@ -209,7 +218,7 @@ export default {
                 }
               }, '收费'))
             }
-            if (params.row.status === 1) {
+            if (params.row.status === 1 || params.row.status === 2) {
               action.push(h('Button', {
                 props: {
                   type: 'default',
@@ -221,10 +230,10 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.print(params.index)
+                    this.refund(params.index)
                   }
                 }
-              }, '打印'))
+              }, '退费'))
             }
             return h('div', action)
           }
@@ -285,24 +294,28 @@ export default {
         this.chargeModal = true
       }
     },
-    print (index) {
-      // 打印
-      if (this.rows[index].status === 1) {
-        this.loading = true
-        let text = {
-          type: 1, // 1直接打印 2预览打印
-          print_size: 'D57', // A4 B5 D57
-          content: ''
-        }
-        printTemplete({ order_id: this.rows[index].id, type: 3 }).then(res => {
-          this.loading = false
-          text.content = res.content
-          this.$store.dispatch('sendPrintCmd', text)
-        }).catch(err => {
-          this.$Message.error(err)
-          this.loading = false
-        })
+    refund (index) {
+      // 退费
+      if (this.rows[index].status === 1 || this.rows[index].status === 2) {
+        this.chargeParam.money = this.rows[index].pay / 100
+        this.chargeParam.order_id = this.rows[index].id
+        this.refundModal = true
       }
+    },
+    print () {
+      // 打印收费单
+      if (!this.printState || !this.chargeParam.order_id) return
+      let text = {
+        type: 1, // 1直接打印 2预览打印
+        print_size: 'D57', // A4 B5 D57
+        content: ''
+      }
+      printTemplete({ order_id: this.chargeParam.order_id, type: 3 }).then(res => {
+        text.content = res.content
+        this.$store.dispatch('sendPrintCmd', text)
+      }).catch(err => {
+        this.$Message.error(err)
+      })
     },
     cardSaveSuccess (res) {
       // 编辑成功
@@ -310,13 +323,24 @@ export default {
         // 收费
         this.chargeParam.money = res.money
         this.chargeParam.order_id = res.order_id
+        this.printState = res.printState
         this.chargeModal = true
       }
       this.loadDoctorOrderList({ page: this.current })
     },
     chargeComplete (res) {
       // 收费完成
-      if (res.msg_code === 'ok') this.loadDoctorOrderList({ page: this.current })
+      if (res.msg_code === 'ok') {
+        this.loadDoctorOrderList({ page: this.current })
+        // 打印收费单
+        this.print()
+      }
+    },
+    refundComplete (res) {
+      // 退费完成
+      if (res.msg_code === 'ok') {
+        this.loadDoctorOrderList({ page: this.current })
+      }
     }
   },
   created () {

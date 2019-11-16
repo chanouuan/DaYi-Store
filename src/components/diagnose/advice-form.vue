@@ -74,7 +74,7 @@
         </Col>
         <Col span="9">
           <FormItem label="过敏史">
-            <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple>
+            <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple allow-create @on-create="selectCreate">
               <Option v-for="(item, index) in allergy" :value="item" :key="index">{{ item }}</Option>
             </Select>
           </FormItem>
@@ -127,9 +127,9 @@
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
       <FormItem style="text-align: right">
         <Button @click="backTo"><Icon type="ios-arrow-back"></Icon> 返回上一步</Button>
-        <Button type="warning" style="margin-left: 8px" icon="md-print" :loading="submit" @click="createCard(3)">打印</Button>
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(2)">保存并收费</Button>
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="createCard(1)">保存</Button>
+        <Button type="warning" style="margin-left: 8px;width: 100px" icon="md-print" :loading="submit" @click="createCard(3)">打印</Button>
+        <Button type="primary" style="margin-left: 8px;" :loading="submit" @click="createCard(2)">保存并收费</Button>
+        <Button type="primary" style="margin-left: 8px;width: 100px" :loading="submit" @click="createCard(1)">保存</Button>
       </FormItem>
     </Form>
     <!-- 添加处方笺 -->
@@ -344,6 +344,10 @@ export default {
       this.advanced = !this.advanced
       this.$store.commit('setAdvanced', this.advanced)
       this.loadData()
+    },
+    selectCreate (val) {
+      // 下拉创建过敏史
+      if (!this.allergy.some(n => val === n)) this.allergy.push(val)
     },
     loadData () {
       if (!this.advanced) return

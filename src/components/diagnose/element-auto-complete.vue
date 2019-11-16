@@ -25,6 +25,7 @@
 import {
   searchPatient,
   searchDrug,
+  searchBatch,
   searchDrugDict,
   searchTreatmentSheet
 } from '@/api/server'
@@ -114,8 +115,8 @@ export default {
       if (this._apiname === 'searchDrug') {
         return searchDrug(this.$store.state.user.clinicInfo.id, 0, value, 0)
       }
-      if (this._apiname === 'searchProcureDrug') {
-        return searchDrug(this.$store.state.user.clinicInfo.id, 0, value, 1)
+      if (this._apiname === 'searchBatch') {
+        return searchBatch(this.$store.state.user.clinicInfo.id, value)
       }
       if (this._apiname === 'searchTreatmentSheet') {
         return searchTreatmentSheet(this.$store.state.user.clinicInfo.id, value)

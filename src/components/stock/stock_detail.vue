@@ -46,10 +46,39 @@
           </Col>
         </Row>
       </Form>
-      <Table ref="table" :columns="columns" :data="form.details" border></Table>
     </div>
+    <div v-else-if="form.stock_type===2">
+      <!-- 出库 -->
+      <Form :label-width="100" label-colon>
+        <Row>
+          <Col span="8">
+            <FormItem label="出库日期">
+              {{ form.stock_date }}
+            </FormItem>
+          </Col>
+          <Col span="8">
+            <FormItem label="出库方式">
+              {{ form.stock_way }}
+            </FormItem>
+          </Col>
+          <Col span="8">
+            <FormItem label="领用人员">
+              {{ form.employee_name }}
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="8">
+            <FormItem label="备注">
+              {{ form.remark }}
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+    </div>
+    <Table ref="table" :columns="pullColumns" :data="form.details" border></Table>
     <div slot="footer">
-      <Button v-if="form.status===0" style="width:150px" type="primary" :loading="submit" @click="confirm">确认入库</Button>
+      <Button v-if="form.status===0" style="width:150px" type="primary" :loading="submit" @click="confirm">确认{{ form.stock_type===1?'入库':'出库' }}</Button>
       <Button style="width:150px" type="default" :loading="submit" @click="exportCsv">导出</Button>
       <Button style="width:150px" type="default" :loading="submit" @click="modalChange(false)">关闭</Button>
     </div>
@@ -86,10 +115,11 @@ export default {
         supplier: '',
         invoice: '',
         remark: '',
+        employee_name: '',
         purchase_price: '',
         details: []
       },
-      columns: [
+      pullColumns: [
         {
           title: '类型',
           key: 'drug_type'
@@ -105,7 +135,7 @@ export default {
           key: 'package_spec'
         },
         {
-          title: '入库数量',
+          title: '数量',
           key: 'amount'
         },
         {
@@ -165,9 +195,7 @@ export default {
     exportCsv () {
       // 导出
       this.$refs.table.exportCsv({
-        filename: '入库单' + this.stock_id,
-        columns: this.columns,
-        data: this.rows
+        filename: (this.form.stock_type === 1 ? '入库' : '出库') + '单' + this.stock_id
       })
     },
     confirm () {

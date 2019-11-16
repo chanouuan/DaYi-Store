@@ -51,7 +51,7 @@
         <Col span="5">{{ note.package_spec }}</Col>
         <Col span="5">{{ note.total_amount+note.dispense_unit }}</Col>
         <Col span="5">￥{{ note.price }}</Col>
-        <Col span="1"><Button size="small" shape="circle" icon="ios-close" @click="noteRemove(index)"></Button></Col>
+        <Col span="1"><Button style="color:#2d8cf0;border-color:#2d8cf0" size="small" @click="noteRemove(index)">删除</Button></Col>
       </Row>
       </template>
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
@@ -178,7 +178,7 @@ export default {
       buyDrug(data).then(res => {
         // 收费
         this.submit = false
-        this.chargeParam.money = ~~this.totalMoney
+        this.chargeParam.money = this.totalMoney
         this.chargeParam.order_id = ~~res.order_id
         this.chargeModal = true
       }).catch(err => {
@@ -212,5 +212,8 @@ export default {
 </script>
 
 <style scoped>
-
+.note-row{
+  height: 36px;
+  line-height: 36px;
+}
 </style>

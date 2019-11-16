@@ -78,18 +78,18 @@
           <Col span="2">
             备注：
           </Col>
-          <Col span="8">
-            <Input v-model.trim="remark" :maxlength="200"></Input>
+          <Col span="21">
+            <Input v-model.trim="remark" maxlength="100" show-word-limit></Input>
           </Col>
         </Row>
       </Col>
     </Row>
     <div slot="footer">
       <template v-if="step===1">
-        <Button type="primary" @click="nextStep">下一步</Button>
+        <Button type="primary" style="width: 100px" @click="nextStep">下一步</Button>
       </template>
       <template v-else-if="step===2">
-        <Button type="primary" @click="step=1">上一步</Button>
+        <Button type="primary" style="width: 100px" @click="step=1">上一步</Button>
         <Button type="error" :loading="loading" @click="onCharge">确定付款</Button>
        </template>
     </div>

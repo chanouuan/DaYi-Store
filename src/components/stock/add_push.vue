@@ -1,42 +1,34 @@
 <template>
   <Card shadow v-show="model_value">
     <p slot="title" style="border-left:2px solid #2d8cf0;padding-left: 10px;">
-      新增入库
+      新增出库
     </p>
     <Form ref="formRef" :rules="ruleForm" :model="form" :label-width="100">
       <Row>
         <Col span="8">
-          <FormItem label="入库日期" prop="stock_date">
+          <FormItem label="出库日期" prop="stock_date">
             <DatePicker v-model="form.stock_date" type="date"></DatePicker>
           </FormItem>
         </Col>
         <Col span="8">
-          <FormItem label="入库方式" prop="stock_way">
+          <FormItem label="出库方式" prop="stock_way">
             <Select v-model="form.stock_way">
               <Option v-for="item in stockWay" :value="item.id" :key="item.id">{{ item.name }}</Option>
             </Select>
           </FormItem>
         </Col>
         <Col span="8">
-          <FormItem label="供应商">
-            <Input :maxlength="30" v-model.trim="form.supplier"/>
+          <FormItem label="领用人员">
+            <Select v-model="form.employee_id" filterable transfer>
+              <Option v-for="item in employees" :value="item.id" :key="item.id">{{ item.nickname }}</Option>
+            </Select>
           </FormItem>
         </Col>
       </Row>
       <Row>
         <Col span="8">
-          <FormItem label="发票号">
-            <Input :maxlength="30" v-model.trim="form.invoice"/>
-          </FormItem>
-        </Col>
-        <Col span="8">
           <FormItem label="备注">
             <Input :maxlength="50" v-model.trim="form.remark"/>
-          </FormItem>
-        </Col>
-        <Col span="8">
-          <FormItem label="购入总金额">
-            ￥{{ totalMoney }}
           </FormItem>
         </Col>
       </Row>
@@ -44,11 +36,12 @@
       <Row class-name="col-th thead">
         <Col span="3" class-name="col-td">药品名称</Col>
         <Col span="3" class-name="col-td">规格</Col>
-        <Col span="2" class-name="col-td"><span style="font-family:SimSun;color:#ed4014;margin-right:4px;">*</span>入库数量</Col>
+        <Col span="2" class-name="col-td"><span style="font-family:SimSun;color:#ed4014;margin-right:4px;">*</span>出库数量</Col>
+        <Col span="2" class-name="col-td">库存数量</Col>
+        <Col span="2" class-name="col-td">零售价</Col>
         <Col span="2" class-name="col-td">进货价</Col>
         <Col span="3" class-name="col-td">批号</Col>
-        <Col span="3" class-name="col-td">零售价</Col>
-        <Col span="3" class-name="col-td">有效期</Col>
+        <Col span="2" class-name="col-td">有效期</Col>
         <Col span="3" class-name="col-td">生产商</Col>
         <Col span="2" class-name="col-td">操作</Col>
       </Row>
@@ -58,28 +51,19 @@
         <Col span="2" class-name="col-td">
           <Input :maxlength="5" v-model.number="item.amount" :placeholder="item.dispense_unit"/>
         </Col>
-        <Col span="2" class-name="col-td">
-          <Input :maxlength="5" v-model.number="item.purchase_price" placeholder="元"/>
-        </Col>
-        <Col span="3" class-name="col-td">
-          <Input :maxlength="30" v-model.trim="item.batch_number" placeholder="批号"/>
-        </Col>
-        <Col span="3" class-name="col-td">
-          {{ item.retail_price }}元 / {{ item.dispense_unit}}
-        </Col>
-        <Col span="3" class-name="col-td">
-          <DatePicker transfer v-model="item.valid_time" type="date" placeholder="请选择日期"></DatePicker>
-        </Col>
-        <Col span="3" class-name="col-td">
-          <Input :maxlength="30" v-model.trim="item.manufactor_name" placeholder="名称"/>
-        </Col>
+        <Col span="2" class-name="col-td">{{ item._amount+item.dispense_unit }}</Col>
+        <Col span="2" class-name="col-td">{{ item.retail_price }}元</Col>
+        <Col span="2" class-name="col-td">{{ item.purchase_price }}元</Col>
+        <Col span="3" class-name="col-td">{{ item.batch_number }}&nbsp;</Col>
+        <Col span="2" class-name="col-td">{{ item.valid_time }}&nbsp;</Col>
+        <Col span="3" class-name="col-td">{{ item.manufactor_name }}</Col>
         <Col span="2" class-name="col-td">
           <Button @click="removeItem(index)" size="small" style="color:#2d8cf0;border-color:#2d8cf0">删除</Button>
         </Col>
       </Row>
       <Row style="margin: 16px 0;">
         <Col span="8">
-          <element-auto-complete v-model="drugName" _icon="ios-search" @on-select="selectDrug" _placeholder="名称/条码/五笔码/拼音码" _apiname="searchDrug"></element-auto-complete>
+          <element-auto-complete v-model="drugName" _icon="ios-search" @on-select="selectDrug" _placeholder="名称/条码/五笔码/拼音码" _apiname="searchBatch"></element-auto-complete>
         </Col>
       </Row>
       <div style="text-align: center;margin: 16px 0;">
@@ -92,6 +76,7 @@
 
 <script>
 import {
+  getDoctorList,
   getStockWayEnum,
   addStock
 } from '@/api/server'
@@ -120,6 +105,7 @@ export default {
       submit: false,
       drugName: '',
       stockWay: [],
+      employees: [],
       form: {
         stock_date: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
         stock_way: '',
@@ -130,26 +116,12 @@ export default {
       },
       ruleForm: {
         stock_date: [
-          { validator: validateRequire, required: true, message: '入库日期不能为空', trigger: 'blur' }
+          { validator: validateRequire, required: true, message: '出库日期不能为空', trigger: 'blur' }
         ],
         stock_way: [
-          { validator: validateRequire, required: true, message: '入库方式不能为空', trigger: 'change' }
+          { validator: validateRequire, required: true, message: '出库方式不能为空', trigger: 'change' }
         ]
       }
-    }
-  },
-  computed: {
-    totalMoney () {
-      // 计算购入总金额
-      let total = 0
-      this.form.details.forEach(n => {
-        if (~~n.amount > 0) {
-          let price = parseFloat(n.purchase_price)
-          price = (isNaN(price) || price < 0) ? 0 : price
-          total += n.amount * price
-        }
-      })
-      return total
     }
   },
   watch: {
@@ -165,15 +137,16 @@ export default {
     selectDrug (row) {
       // 搜索药品
       let data = {}
-      data.drug_id = row.id
+      data.drug_id = row.drug_id
       data.name = row.name
       data.package_spec = row.package_spec
       data.amount = ''
+      data._amount = row.amount
       data.dispense_unit = row.dispense_unit
-      data.purchase_price = ''
-      data.batch_number = ''
-      data.retail_price = row.price
-      data.valid_time = ''
+      data.purchase_price = row.purchase_price
+      data.batch_number = row.batch_number
+      data.retail_price = row.retail_price
+      data.valid_time = row.valid_time
       data.manufactor_name = row.manufactor_name
       this.form.details.push(data)
       this.drugName = ''
@@ -216,9 +189,9 @@ export default {
             return this.$Message.error('药品不能为空')
           }
           this.form.details[n].amount = ~~this.form.details[n].amount || ''
-          if (!this.form.details[n].amount || this.form.details[n].amount <= 0) {
+          if (!this.form.details[n].amount || this.form.details[n].amount <= 0 || this.form.details[n].amount > this.form.details[n]._amount) {
             this.submit = false
-            return this.$Message.error('入库数量必须大于0')
+            return this.$Message.error('出库数量必须大于0，且小于库存数量')
           }
         }
         let data = Object.assign({}, this.form)
@@ -234,7 +207,7 @@ export default {
           })
         })
         data.details = JSON.stringify(details)
-        data.stock_type = 1 // 入库
+        data.stock_type = 2 // 出库
         addStock(data).then(res => {
           this.submit = false
           this.cancel({ msg_code: 'ok' })
@@ -248,10 +221,18 @@ export default {
       })
     },
     loadData () {
-      // 加载入库方式
+      // 加载出库方式
       if (!this.stockWay.length) {
         getStockWayEnum().then(res => {
-          this.stockWay = res[1] || []
+          this.stockWay = res[2] || []
+        }).catch(err => {
+          this.$Message.error(err)
+        })
+      }
+      // 获取员工
+      if (!this.employees.length) {
+        getDoctorList(true).then(res => {
+          this.employees = res
         }).catch(err => {
           this.$Message.error(err)
         })

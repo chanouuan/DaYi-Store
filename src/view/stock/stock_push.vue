@@ -30,7 +30,7 @@
     </div>
   </Card>
   <!-- 新增出库 -->
-  <add-pull v-model="addModal" @on-complete="addComplete"></add-pull>
+  <add-push v-model="addModal" @on-complete="addComplete"></add-push>
   <!-- 出入库详情 -->
   <stock-detail v-model="viewModal" :stock_id="selectId" @on-complete="confirmComplete"></stock-detail>
   </div>
@@ -42,11 +42,11 @@ import {
   getStockPullOrPush,
   delStock
 } from '@/api/server'
-import AddPull from '_c/stock/add_pull'
+import AddPush from '_c/stock/add_push'
 import StockDetail from '_c/stock/stock_detail'
 export default {
   components: {
-    AddPull,
+    AddPush,
     StockDetail
   },
   data () {
@@ -105,7 +105,7 @@ export default {
         },
         {
           title: '领用人员',
-          key: 'supplier'
+          key: 'employee_name'
         },
         {
           title: '制单人',
@@ -245,9 +245,9 @@ export default {
   },
   created () {
     this.loadList()
-    // 加载入库方式
+    // 加载出库方式
     if (!this.stockWay.length) {
-      getStockWayEnum().then(res => {
+      getStockWayEnum(true).then(res => {
         this.stockWay = res[2] || []
       }).catch(err => {
         this.$Message.error(err)

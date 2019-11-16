@@ -51,7 +51,7 @@
         </Col>
         <Col span="9">
           <FormItem label="过敏史">
-            <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple>
+            <Select :max-tag-count="1" v-model="formItem.patient_allergies" placeholder="请填写过敏史" filterable multiple allow-create @on-create="selectCreate">
               <Option v-for="(item, index) in allergy" :value="item" :key="index">{{ item }}</Option>
             </Select>
           </FormItem>
@@ -96,15 +96,16 @@
         <Col span="1">{{ index+1 }}.</Col>
         <Col span="4">{{ note.name }}</Col>
         <Col span="3">{{ note.total_amount+note.dispense_unit }}</Col>
-        <Col span="3">￥{{ note.price }}</Col>
+        <Col span="3">￥{{ note.unit_price*note.total_amount }}</Col>
         <Col span="12">{{ note.remark }}&nbsp;</Col>
         <Col span="1"><Button style="color:#2d8cf0;border-color:#2d8cf0" size="small" @click="noteRemove(index)">删除</Button></Col>
       </Row>
       </template>
       <Divider orientation="right" dashed>合计：<span style="color:#ed4014">￥{{ totalMoney }}</span></Divider>
       <FormItem style="text-align: right">
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(2)">保存并收费</Button>
-        <Button type="primary" style="margin-left: 8px" :loading="submit" @click="saveDoctorCard(1)">保存</Button>
+        <Checkbox v-model="printState">打印收费单</Checkbox>
+        <Button type="primary" style="margin-left: 8px;" :loading="submit" @click="saveDoctorCard(2)">保存并收费</Button>
+        <Button type="primary" style="margin-left: 8px;width: 100px" :loading="submit" @click="saveDoctorCard(1)">保存</Button>
       </FormItem>
     </Form>
     <!-- 添加处方笺 -->
@@ -142,6 +143,7 @@ export default {
       submit: false,
       allergy: [],
       doctors: [],
+      printState: true,
       formItem: {
         patient_id: 0,
         patient_name: '',
@@ -171,7 +173,7 @@ export default {
       // 计算总金额
       let total = 0
       this.formItem.notes.forEach(element => {
-        total += element.price
+        total += element.unit_price * element.total_amount
       })
       return parseFloat(total).toFixed(2)
     }
@@ -183,6 +185,9 @@ export default {
       if (val) {
         this.loadData()
         this.detail()
+      } else {
+        this.loading = false
+        this.submit = false
       }
     },
     selectPatientName (row) {
@@ -220,6 +225,7 @@ export default {
           res.money = parseFloat(this.totalMoney)
           res.order_id = ~~this.order_id
           res.type = type
+          res.printState = this.printState
           this.$emit('child-change', false)
           this.$emit('on-success', res)
         }).catch(err => {
@@ -245,6 +251,10 @@ export default {
       this.formItem.notes.splice(index, 1)
       this.$refs.noteForm.note[note.category].count--
     },
+    selectCreate (val) {
+      // 下拉创建过敏史
+      if (!this.allergy.some(n => val === n)) this.allergy.push(val)
+    },
     detail () {
       // 获取详情
       this.loading = true
@@ -257,6 +267,12 @@ export default {
         this.formItem.patient_age_month = res.patient_age ? Math.round((parseFloat(res.patient_age) - parseInt(res.patient_age)) * 100) : ''
         this.formItem.patient_complaint = res.patient_complaint
         this.formItem.patient_allergies = res.patient_allergies ? res.patient_allergies.split(';') : []
+        // 导入过敏史到下拉列表
+        if (this.formItem.patient_allergies.length) {
+          this.formItem.patient_allergies.forEach(n => {
+            this.selectCreate(n)
+          })
+        }
         this.formItem.patient_diagnosis = res.patient_diagnosis
         this.formItem.doctor_id = res.doctor_id
         this.formItem.note_dose = res.note_dose
