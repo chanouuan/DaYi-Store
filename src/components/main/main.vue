@@ -24,7 +24,6 @@
             <keep-alive :include="cacheList">
               <router-view/>
             </keep-alive>
-            <ABackTop :height="100" :bottom="80" :right="50" container=".content-wrapper"></ABackTop>
           </Content>
         </Layout>
       </Content>
@@ -36,7 +35,6 @@ import SideMenu from './components/side-menu'
 import HeaderBar from './components/header-bar'
 import TagsNav from './components/tags-nav'
 import User from './components/user'
-import ABackTop from './components/a-back-top'
 import { mapMutations, mapActions } from 'vuex'
 import { getNewTagList, routeEqual } from '@/libs/util'
 import routers from '@/router/routers'
@@ -49,8 +47,7 @@ export default {
     SideMenu,
     HeaderBar,
     TagsNav,
-    User,
-    ABackTop
+    User
   },
   data () {
     return {

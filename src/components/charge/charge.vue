@@ -1,5 +1,5 @@
 <template>
-  <Modal :value="model_value" :width="60" :styles="{top:'16px'}" :mask-closable="false" @on-cancel="modalChange">
+  <Modal :value="model_value" :width="80" :styles="{top:'16px'}" :mask-closable="false" @on-cancel="modalChange">
     <p slot="header">
       付款
     </p>

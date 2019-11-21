@@ -241,7 +241,7 @@ export default {
       // 添加处方
       if (note.relation_id) {
         // 先计算金额
-        note.price *= note.total_amount
+        note.unit_price = note.price
         this.formItem.notes.push(note)
       }
     },
