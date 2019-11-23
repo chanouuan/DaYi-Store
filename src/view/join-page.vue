@@ -18,14 +18,12 @@
 </template>
 
 <script>
-import qqFans from '@/assets/images/qq-group1.jpg'
-import qqFans2 from '@/assets/images/qq-group2.jpg'
 export default {
   name: 'join_page',
   data () {
     return {
-      qqFans,
-      qqFans2
+      qqFans: '',
+      qqFans2: ''
     }
   }
 }

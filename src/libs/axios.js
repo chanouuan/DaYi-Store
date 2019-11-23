@@ -21,7 +21,7 @@ class HttpRequest {
   getInsideConfig () {
     const config = {
       baseURL: this.baseUrl,
-      timeout: 10,
+      timeout: 10000,
       headers: {
         // 'Content-Type': 'application/json'
       }
@@ -36,16 +36,16 @@ class HttpRequest {
   }
   interceptors (instance, url) {
     // 请求拦截
-    instance.interceptors.request.use(config => {
-      // 添加全局的loading...
-      // if (!Object.keys(this.queue).length) {
-      // Spin.show() // 不建议开启，因为界面不友好
-      // }
-      // this.queue[url] = true
-      return config
-    }, error => {
-      return Promise.reject(error)
-    })
+    // instance.interceptors.request.use(config => {
+    // 添加全局的loading...
+    // if (!Object.keys(this.queue).length) {
+    // Spin.show() // 不建议开启，因为界面不友好
+    // }
+    // this.queue[url] = true
+    // return config
+    // }, error => {
+    // return Promise.reject(error)
+    // })
     // 响应拦截
     instance.interceptors.response.use(res => {
       // this.destroy(url)
@@ -63,7 +63,7 @@ class HttpRequest {
           return data.result
         }
       }
-      return { data, status }
+      return Promise.reject(new Error({ data, status }))
     }, error => {
       // this.destroy(url)
       let errorInfo = error.response

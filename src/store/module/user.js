@@ -106,12 +106,16 @@ export default {
           password,
           clinic_id
         }).then(res => {
-          commit('setAvator', res.avatar)
-          commit('setUserId', res.user_id)
-          commit('setUserName', res.nickname)
-          commit('setAccess', res.permission)
-          commit('setToken', res.token)
-          resolve()
+          if (!res.token) {
+            reject(new Error('登录失败！'))
+          } else {
+            commit('setAvator', res.avatar)
+            commit('setUserId', res.user_id)
+            commit('setUserName', res.nickname)
+            commit('setAccess', res.permission)
+            commit('setToken', res.token)
+            resolve()
+          }
         }).catch(err => {
           reject(err)
         })

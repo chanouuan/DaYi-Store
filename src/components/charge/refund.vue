@@ -61,7 +61,7 @@
     <div slot="footer">
       <span style="color: #ff9900; margin-right: 5px" v-if="this.form.discount">该笔收费存在优惠金额，不支持单项退费！</span>
       <span style="color: #ff9900; margin-right: 5px" v-else>温馨提示：当前退费为不可逆动作，请谨慎操作！</span>
-      <Button type="error" :loading="loading" :disabled="disabled" @click="onRefund">确定退费</Button>
+      <Button type="error" :loading="submit" :disabled="disabled" @click="onRefund">确定退费</Button>
       <Button type="default" style="width: 100px" @click="modalChange(false)">关闭</Button>
     </div>
     <Spin fix v-if="loading"></Spin>
@@ -86,6 +86,7 @@ export default {
   data () {
     return {
       loading: false,
+      submit: false,
       disabled: true,
       paywayList: [],
       payway: '0',
@@ -262,12 +263,12 @@ export default {
         }
       })
       data.notes = JSON.stringify(data.notes)
-      this.loading = true
+      this.submit = true
       localRefund(data).then(res => {
-        this.loading = false
+        this.submit = false
         this.complete()
       }).catch(err => {
-        this.loading = false
+        this.submit = false
         this.$Message.error(err)
       })
     },
@@ -282,6 +283,7 @@ export default {
     detail () {
       // 获取详情
       this.loading = true
+      this.submit = false
       this.disabled = true
       this.form.notes = [] // 清空表格
       getDoctorOrderDetail({ order_id: this.order_id }).then(res => {
